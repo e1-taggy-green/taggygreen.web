@@ -8,7 +8,6 @@ export default function DashboardB2B() {
     <div className="min-h-screen bg-taggy-light p-6 font-sans text-taggy-dark">
       <div className="max-w-5xl mx-auto space-y-6">
         
-        {/* Header Corporativo */}
         <header className="flex items-center justify-between bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
           <div className="flex items-center gap-4">
             <button onClick={() => navigate('/')} className="text-gray-400 hover:text-edenred-orange">
@@ -32,10 +31,8 @@ export default function DashboardB2B() {
           </div>
         </header>
 
-        {/* Área de Exportação e Resumo */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
           
-          {/* Exportação */}
           <div className="md:col-span-2 bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
             <h2 className="text-xl font-bold mb-2">Exportação de Relatório ESG</h2>
             <p className="text-gray-500 mb-6 max-w-lg">
@@ -61,7 +58,6 @@ export default function DashboardB2B() {
             </div>
           </div>
 
-          {/* Resumo Rápido */}
           <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col justify-center">
             <h3 className="text-sm font-bold text-gray-500 mb-6 uppercase tracking-wider">Resumo do Período</h3>
             

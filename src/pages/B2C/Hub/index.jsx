@@ -8,7 +8,6 @@ export default function HubB2C() {
     <div className="min-h-screen bg-taggy-light p-6 font-sans text-taggy-dark">
       <div className="max-w-4xl mx-auto space-y-6">
         
-        {/* Header Simples */}
         <header className="flex items-center justify-between bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
           <div className="flex items-center gap-4">
             <button onClick={() => navigate('/')} className="text-gray-400 hover:text-taggy-green">
@@ -25,7 +24,6 @@ export default function HubB2C() {
           </div>
         </header>
 
-        {/* Card Principal: Meu Rastro */}
         <section className="bg-taggy-green text-white rounded-3xl p-8 shadow-lg flex items-center justify-between">
           <div>
             <span className="bg-white/20 px-3 py-1 rounded-full text-sm font-medium">ABRIL / 2026</span>
@@ -37,7 +35,6 @@ export default function HubB2C() {
           <TreePine size={120} className="text-white/20" />
         </section>
 
-        {/* Conversor Lúdico */}
         <section>
           <h3 className="text-lg font-semibold mb-4 text-gray-700">O que isso significa na prática?</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

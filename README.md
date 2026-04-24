@@ -71,19 +71,18 @@ Aqui ficam as nossas "Peças de Lego". São componentes visuais "burros", ou sej
 * **`common/`**: Coisas genéricas que usamos em todo lugar. Ex: Botões, Inputs de texto, Spinners de carregamento e Cards.
 * **`layout/`**: As cascas das páginas. Ex: `Header` (barra superior), `Sidebar` (menu lateral) e `Footer`.
 
+---
+
 ### 🧠 Detalhando `contexts/`
-Usamos a Context API do React aqui. Pensem no Contexto como um "alto-falante global". Quando uma informação precisa estar disponível para o app inteiro sem precisarmos passar de componente em componente.
-* **`AuthContext.js`**: Sabe dizer para qualquer tela se o usuário está logado e se ele é um Gestor ou Motorista.
+Usamos a Context API do React aqui.
 * **`ThemeContext.js`**: Guardaria a informação se o usuário prefere o Tema Claro ou Escuro.
 
 ### 🪝 Detalhando `hooks/`
-Regras de negócio e lógicas do React que se repetem muito. Extraímos para cá para deixar o código mais limpo.
-* **`useAuth.js`**: Um atalho para acessar os dados do `AuthContext`.
-* **`useFetchMetrics.js`**: Uma função customizada que cuida de buscar os dados de CO2, gerenciando sozinha se a tela deve mostrar um "Loading..." ou uma mensagem de erro.
+Regras de negócio e lógicas do React que se repetem muito.
+* **`useFetchMetrics.js`**: Uma função customizada que cuida de buscar os dados de CO2, gerenciando sozinha os estados de "Loading..." e erro.
 
 ### 📱 Detalhando `pages/`
-Aqui ficam as Telas Reais. Elas importam as "peças de Lego" dos `components/`, buscam os dados da API e montam a página final.
-* **`Auth/Login.jsx`**: A primeira tela que o usuário vê.
+Aqui ficam as Telas Reais. Elas importam as "peças de Lego" dos `components/`.
 * **`B2C/Hub/`**: A dashboard "Meu Rastro Verde".
 * **`B2C/Marketplace/`**: Modelo de parceria com troca de produtos/pontos.
 * **`B2B/Dashboard/`**: O painel Dashboard ESG.
@@ -92,12 +91,10 @@ Aqui ficam as Telas Reais. Elas importam as "peças de Lego" dos `components/`, 
 ### 🚦 Detalhando `routes/`
 É o guarda de trânsito que define qual tela deve aparecer dependendo da URL que o usuário digitou.
 * **`index.jsx`**: O mapa completo do site. Associa URLs (`/b2c/hub`) com as páginas.
-* **`PrivateRoute.jsx`**: Nosso segurança de balada. Ele verifica: "Esse usuário está logado? Ele tem permissão para ver essa tela?". Se não, ele expulsa de volta pro Login.
 
 ### 📨 Detalhando `services/`
-O nosso "carteiro". É a única pasta autorizada a falar com o mundo externo (a API que a equipe de Back-end construiu).
-* **`api.js`**: A configuração básica do `Axios` (ferramenta de requisição), onde colocamos a URL base do nosso servidor.
-* **`authService.js`**: Funções exclusivas para mandar e-mail e senha e receber o token de acesso.
+O nosso "carteiro". É a única pasta autorizada a falar com o mundo externo.
+* **`api.js`**: A configuração básica do `Axios` (ferramenta de requisição).
 * **`metricsService.js`**: Funções para pedir ao back-end os cálculos de CO2.
 
 ### 🧰 Detalhando `utils/`

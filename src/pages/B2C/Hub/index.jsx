@@ -4,7 +4,6 @@ import { useB2CDashboard } from '../../../hooks/useB2CDashboard';
 
 export default function HubB2C() {
   const navigate = useNavigate();
-  // Consumindo o custom hook criado!
   const { data, loading, error } = useB2CDashboard();
 
   // Estado de Carregamento

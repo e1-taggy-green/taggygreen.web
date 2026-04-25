@@ -16,19 +16,15 @@ export function useB2CDashboard() {
       try {
         setLoading(true);
         
-        const [userRes, rastroRes, extratoRes, destaquesRes] = await Promise.all([
-          b2cService.getUser(),
-          b2cService.getUserRastroHistorico(),
-          b2cService.getUserExtrato(),
-          b2cService.getDestaqueMP()
-        ]);
-
+        // Simulando a resposta da API
+        await new Promise(resolve => setTimeout(resolve, 1000));
         setData({
-          user: userRes.data,
-          rastro: rastroRes.data,
-          extrato: extratoRes.data,
-          destaques: destaquesRes.data
+          user: { userName: 'Usuário de Teste', userPoints: 1250 },
+          rastro: { co2Evitado: 45, arvoresSalvas: 4.5, kmPoupados: 450, horasLampada: 225 },
+          extrato: [],
+          destaques: []
         });
+
       } catch (err) {
         console.error("Erro ao carregar Dashboard B2C", err);
         setError(err.message || 'Erro inesperado na API');

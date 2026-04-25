@@ -29,7 +29,7 @@ Para entregar um projeto moderno e de alta performance, escolhemos a dedo a noss
 
 ### 🛣️ React Router Dom
 **Por que usamos:** Nosso WebApp é uma *Single Page Application* (SPA), ou seja, a página web nunca recarrega de verdade. Precisávamos de algo para gerenciar a navegação fluida.
-**Como funciona:** Ele intercepta a URL do navegador e "injeta" o componente correto na tela, como a tela de Login ou o Dashboard ESG.
+**Como funciona:** Ele intercepta a URL do navegador e "injeta" o componente correto na tela, como o Dashboard ESG.
 **Como foi instalado:** `npm install react-router-dom`
 
 ### 📡 Axios
@@ -70,8 +70,6 @@ Arquivos estáticos que não mudam com a lógica do sistema.
 Aqui ficam as nossas "Peças de Lego". São componentes visuais "burros", ou seja, eles não buscam dados no banco, apenas recebem informações e mostram na tela.
 * **`common/`**: Coisas genéricas que usamos em todo lugar. Ex: Botões, Inputs de texto, Spinners de carregamento e Cards.
 * **`layout/`**: As cascas das páginas. Ex: `Header` (barra superior), `Sidebar` (menu lateral) e `Footer`.
-
----
 
 ### 🧠 Detalhando `contexts/`
 Usamos a Context API do React aqui.

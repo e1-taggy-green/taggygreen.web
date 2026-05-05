@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+/* Definindo as cores da Taggy e Edenred no padrão do Tailwind v4 */
+@theme {
+  --color-taggy-green: #00A859;
+  --color-taggy-dark: #1E1E1E;
+  --color-taggy-light: #F5F5F5;
+  --color-edenred-red: #E81932;
+  --color-edenred-orange: #FF5C00;
+}
+
+/* Fundo padrão do nosso app */
+body {
+  background-color: var(--color-taggy-light);
+  color: var(--color-taggy-dark);
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}

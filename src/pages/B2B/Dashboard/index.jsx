@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Nav, Footer, MetricCard, Progress } from "../../../components/shared";
+import { b2bService } from "../../../services/b2bService";
 
 /**
  * B2B DASHBOARD PAGE
@@ -8,21 +9,61 @@ import { Nav, Footer, MetricCard, Progress } from "../../../components/shared";
 export default function DashboardB2B() {
   const [tab, setTab] = useState("esg");
   const [periodo, setPeriodo] = useState("Abril/2026");
+  const [dadosEsg, setDadosEsg] = useState(null);
+  const [ranking, setRanking] = useState([]);
+  const [performanceCat, setPerformanceCat] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const emailGestor = "teste.b2b@taggy.com";
 
-  const veiculos = [
-    {rank:1, placa:"ABC-1234", modelo:"Ford Transit", rota:"SP–Campinas", pass:280, co2:580, pct:100},
-    {rank:2, placa:"DEF-5678", modelo:"VW Delivery",  rota:"SP–Santos",   pass:210, co2:440, pct:76},
-    {rank:3, placa:"GHI-9012", modelo:"Fiat Ducato",  rota:"SP–Interior", pass:190, co2:390, pct:67},
-    {rank:4, placa:"JKL-3456", modelo:"Renault Master",rota:"SP–ABC",     pass:170, co2:310, pct:53},
-    {rank:5, placa:"MNO-7890", modelo:"Iveco Daily",  rota:"SP–Litoral",  pass:140, co2:280, pct:48},
-  ];
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      setLoading(true);
 
-  const catPerf = [
-    {icon:"🚗", cat:"Carros e Utilitários", veic:620, ef:89, co2:"2.140", pot:"+260", status:"Ótimo", color:"bg-green-500"},
-    {icon:"🚚", cat:"Caminhões e Pesados",   veic:240, ef:62, co2:"1.850", pot:"+520", status:"Atenção", color:"bg-amber-400"},
-    {icon:"🏍️", cat:"Motos",                 veic:100, ef:95, co2:"385",   pot:"+20",  status:"Excelente", color:"bg-green-500"},
-    {icon:"🚐", cat:"Vans e Kombis",          veic:40,  ef:73, co2:"280",   pot:"+104", status:"Regular", color:"bg-gray-400"},
-  ];
+      // Requisições separadas para não quebrar a tela toda se 1 falhar
+      try {
+        const resEsg = await b2bService.getRelatorioESG(emailGestor);
+        setDadosEsg(resEsg.data);
+      } catch (err) {
+        console.error("Erro ao buscar ESG:", err);
+      }
+
+      try {
+        const resRanking = await b2bService.getRankingFrota(emailGestor);
+        setRanking(resRanking.data || []);
+      } catch (err) {
+        console.error("Erro ao buscar Ranking:", err);
+      }
+
+      try {
+        const resPerf = await b2bService.getPerfbyCategoria(emailGestor);
+        setPerformanceCat(resPerf.data || []);
+      } catch (err) {
+        console.error("Erro ao buscar Categorias:", err);
+      }
+
+      setLoading(false);
+    };
+    fetchDashboard();
+  }, []);
+
+  // Função para processar os relatórios baixáveis (PDF e CSV)
+  const handleDownload = async (tipo) => {
+    try {
+      const response = tipo === 'pdf' 
+        ? await b2bService.getRelatorioESG_PDF(emailGestor)
+        : await b2bService.getRelatorioESG_csv(emailGestor);
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `relatorio_esg_${periodo.replace('/', '_')}.${tipo}`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (err) {
+      console.error(`Erro ao baixar ${tipo}:`, err);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -38,8 +79,8 @@ export default function DashboardB2B() {
               <p className="text-sm text-gray-500 mt-0.5 max-w-lg">Acompanhe a eficiência da frota, gere relatórios auditáveis e simule o impacto sustentável.</p>
             </div>
             <div className="flex gap-2 flex-wrap">
-              <button className="flex items-center gap-1.5 text-xs font-semibold border border-gray-300 rounded-xl px-4 py-2 hover:border-green-500 hover:text-green-700 hover:bg-green-50 transition-all">📊 Exportar CSV/Excel</button>
-              <button className="flex items-center gap-1.5 text-xs font-semibold border border-gray-300 rounded-xl px-4 py-2 hover:border-green-500 hover:text-green-700 hover:bg-green-50 transition-all">📄 Baixar PDF Auditável</button>
+              <button onClick={() => handleDownload('csv')} className="flex items-center gap-1.5 text-xs font-semibold border border-gray-300 rounded-xl px-4 py-2 hover:border-green-500 hover:text-green-700 hover:bg-green-50 transition-all">📊 Exportar CSV/Excel</button>
+              <button onClick={() => handleDownload('pdf')} className="flex items-center gap-1.5 text-xs font-semibold border border-gray-300 rounded-xl px-4 py-2 hover:border-green-500 hover:text-green-700 hover:bg-green-50 transition-all">📄 Baixar PDF Auditável</button>
               <button className="flex items-center gap-1.5 text-xs font-bold bg-green-500 text-white rounded-xl px-4 py-2 hover:bg-green-600 transition-all shadow-md shadow-green-100">🌱 Simulador</button>
             </div>
           </div>
@@ -74,12 +115,12 @@ export default function DashboardB2B() {
 
               {/* 6 metrics */}
               <div className="grid grid-cols-3 gap-4">
-                <MetricCard icon="🌿" label="CO₂ Evitado"         value="4.375" unit="kg"    change="+12% vs mês anterior" bg="bg-green-50"/>
-                <MetricCard icon="⛽" label="Combustível Poupado"  value="1.470" unit="L"     change="+8% vs mês anterior"  bg="bg-blue-50"/>
-                <MetricCard icon="⏱️" label="Tempo Otimizado"      value="142"   unit="hrs"   change="+5% eficiência"        bg="bg-amber-50"/>
-                <MetricCard icon="🚚" label="Frota Total"          value="1.000" unit="veíc." change="+50 integrados"        bg="bg-teal-50"/>
-                <MetricCard icon="💰" label="R$ Economizado"       value="18.450" unit="R$"   change="+18% retorno"          bg="bg-purple-50"/>
-                <MetricCard icon="📈" label="ROI"                  value="285"   unit="%"     change="Excelente performance"  bg="bg-red-50"/>
+                <MetricCard icon="🌿" label="CO₂ Evitado"         value={loading ? "..." : dadosEsg?.co2_evitado_kg ?? "4.375"} unit="kg"    change="+12% vs mês anterior" bg="bg-green-50"/>
+                <MetricCard icon="⛽" label="Combustível Poupado"  value={loading ? "..." : dadosEsg?.combustivel_evitado_litros ?? "1.470"} unit="L"     change="+8% vs mês anterior"  bg="bg-blue-50"/>
+                <MetricCard icon="⏱️" label="Tempo Otimizado"      value={loading ? "..." : dadosEsg?.tempo_economizado_minutos ?? "142"}   unit="min"   change="+5% eficiência"        bg="bg-amber-50"/>
+                <MetricCard icon="🚚" label="Frota Total"          value={loading ? "..." : dadosEsg?.frota_total ?? "1.000"} unit="veíc." change="+50 integrados"        bg="bg-teal-50"/>
+                <MetricCard icon="💰" label="R$ Economizado"       value={loading ? "..." : dadosEsg?.economia_financeira ?? "18.450"} unit="R$"   change="+18% retorno"          bg="bg-purple-50"/>
+                <MetricCard icon="📈" label="ROI"                  value={loading ? "..." : dadosEsg?.roi_percentual ?? "285"}   unit="%"     change="Excelente performance"  bg="bg-red-50"/>
               </div>
 
               {/* GHG */}
@@ -90,53 +131,6 @@ export default function DashboardB2B() {
                   <div className="text-sm text-blue-700 leading-relaxed">Todos os cálculos estão em conformidade com as diretrizes do GHG Protocol para emissões de escopo 1 e 3. Utilize os botões de exportação para baixar o documento completo.</div>
                 </div>
                 <span className="flex-shrink-0 text-xs font-bold bg-blue-200 text-blue-800 px-3 py-1 rounded-full">Auditável</span>
-              </div>
-
-              {/* Table + Ranking */}
-              <div className="grid grid-cols-5 gap-4">
-                {/* Tabela passagens */}
-                <div className="col-span-3 bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
-                  <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-                    <div className="font-bold text-gray-800 text-sm flex items-center gap-2">🛣️ Passagens por Categoria</div>
-                    <span className="text-xs bg-gray-100 text-gray-600 font-bold px-2 py-0.5 rounded-full">{periodo}</span>
-                  </div>
-                  <table className="w-full text-sm">
-                    <thead><tr className="bg-gray-50">
-                      {["Categoria","Passagens","CO₂ Evitado","Economia"].map(h => <th key={h} className="text-left px-4 py-2.5 text-xs text-gray-400 font-bold uppercase tracking-wide">{h}</th>)}
-                    </tr></thead>
-                    <tbody>
-                      {[
-                        ["🚗 Carros","4.820","2.140 kg","R$ 8.950"],
-                        ["🚚 Caminhões","1.230","1.850 kg","R$ 7.200"],
-                        ["🏍️ Motos","980","385 kg","R$ 1.800"],
-                        ["🅿️ Estacionamentos","2.400","0 kg","R$ 500"],
-                      ].map(([c,p,co2,eco],i) => (
-                        <tr key={i} className="border-t border-gray-50 hover:bg-gray-50 transition-colors">
-                          <td className="px-4 py-3 text-gray-800 font-medium">{c}</td>
-                          <td className="px-4 py-3 text-gray-600">{p}</td>
-                          <td className="px-4 py-3 text-green-600 font-bold">{co2}</td>
-                          <td className="px-4 py-3 text-gray-600">{eco}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* Ranking */}
-                <div className="col-span-2 bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
-                  <div className="px-5 py-4 border-b border-gray-100 font-bold text-gray-800 text-sm">🏆 Top Veículos</div>
-                  {veiculos.map(v => (
-                    <div key={v.rank} className="flex items-center gap-3 px-4 py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
-                      <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0 ${v.rank===1?"bg-amber-100 text-amber-800":v.rank===2?"bg-gray-200 text-gray-700":v.rank===3?"bg-orange-100 text-orange-800":"bg-gray-100 text-gray-500"}`}>{v.rank}</div>
-                      <div className="flex-1 min-w-0">
-                        <div className="font-semibold text-xs text-gray-800 truncate">{v.placa} · {v.modelo}</div>
-                        <div className="text-xs text-gray-400">{v.rota}</div>
-                        <div className="mt-1.5"><Progress value={v.pct}/></div>
-                      </div>
-                      <div className="text-xs font-bold text-green-600 flex-shrink-0">+{v.co2} kg</div>
-                    </div>
-                  ))}
-                </div>
               </div>
             </div>
           )}
@@ -170,29 +164,74 @@ export default function DashboardB2B() {
                     ))}
                   </tr></thead>
                   <tbody>
-                    {catPerf.map((row,i) => (
+                    {performanceCat.map((row,i) => (
                       <tr key={i} className="border-t border-gray-50 hover:bg-gray-50 transition-colors">
-                        <td className="px-4 py-3 text-gray-800 font-medium">{row.icon} {row.cat}</td>
-                        <td className="px-4 py-3 text-gray-600">{row.veic}</td>
+                        <td className="px-4 py-3 text-gray-800 font-medium">{row.icon || ""} {row.categoria || row.cat || "-"}</td>
+                        <td className="px-4 py-3 text-gray-600">{row.veiculos || row.veic || "-"}</td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
-                            <div className="w-20"><Progress value={row.ef} color={row.color}/></div>
-                            <span className="text-xs text-gray-600 font-semibold">{row.ef}%</span>
+                            <div className="w-20"><Progress value={row.eficiencia || row.ef || 0} color={row.color || "bg-green-500"}/></div>
+                            <span className="text-xs text-gray-600 font-semibold">{row.eficiencia || row.ef || 0}%</span>
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-green-600 font-bold">{row.co2} kg</td>
-                        <td className={`px-4 py-3 text-xs font-bold ${row.status==="Atenção"?"text-amber-600":"text-gray-400"}`}>{row.pot} kg</td>
+                        <td className="px-4 py-3 text-green-600 font-bold">{row.co2_evitado || row.co2 || "-"} kg</td>
+                        <td className={`px-4 py-3 text-xs font-bold ${row.status==="Atenção"?"text-amber-600":"text-gray-400"}`}>{row.potencial || row.pot || "-"} kg</td>
                         <td className="px-4 py-3">
                           <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
                             row.status==="Excelente"?"bg-green-100 text-green-800":
                             row.status==="Ótimo"?"bg-green-100 text-green-700":
                             row.status==="Atenção"?"bg-amber-100 text-amber-800":
-                            "bg-gray-100 text-gray-600"}`}>{row.status}</span>
+                            "bg-gray-100 text-gray-600"}`}>{row.status || "-"}</span>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
+              </div>
+
+              {/* Table + Ranking (Movido da aba ESG) */}
+              <div className="grid grid-cols-5 gap-4">
+                {/* Tabela passagens */}
+                <div className="col-span-3 bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
+                  <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+                    <div className="font-bold text-gray-800 text-sm flex items-center gap-2">🛣️ Passagens por Categoria</div>
+                    <span className="text-xs bg-gray-100 text-gray-600 font-bold px-2 py-0.5 rounded-full">{periodo}</span>
+                  </div>
+                  <table className="w-full text-sm">
+                    <thead><tr className="bg-gray-50">
+                      {["Categoria","Passagens","CO₂ Evitado","Economia"].map(h => <th key={h} className="text-left px-4 py-2.5 text-xs text-gray-400 font-bold uppercase tracking-wide">{h}</th>)}
+                    </tr></thead>
+                    <tbody>
+                      {performanceCat.map((row, i) => (
+                        <tr key={i} className="border-t border-gray-50 hover:bg-gray-50 transition-colors">
+                          <td className="px-4 py-3 text-gray-800 font-medium">{row.icon || ""} {row.categoria || row.cat || "-"}</td>
+                          <td className="px-4 py-3 text-gray-600">{row.passagens || row.pass || "-"}</td>
+                          <td className="px-4 py-3 text-green-600 font-bold">{row.co2_evitado || row.co2 || "-"} kg</td>
+                          <td className="px-4 py-3 text-gray-600">{row.economia || "-"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Ranking */}
+                <div className="col-span-2 bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
+                  <div className="px-5 py-4 border-b border-gray-100 font-bold text-gray-800 text-sm">🏆 Top Veículos</div>
+                  {ranking.map((v, index) => {
+                    const rank = index + 1;
+                    return (
+                      <div key={rank} className="flex items-center gap-3 px-4 py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
+                        <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0 ${rank===1?"bg-amber-100 text-amber-800":rank===2?"bg-gray-200 text-gray-700":rank===3?"bg-orange-100 text-orange-800":"bg-gray-100 text-gray-500"}`}>{rank}</div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-semibold text-xs text-gray-800 truncate">{v.placa || "-"} · {v.modelo || "-"}</div>
+                          <div className="text-xs text-gray-400">{v.rota || "-"}</div>
+                          <div className="mt-1.5"><Progress value={v.pct || 0}/></div>
+                        </div>
+                        <div className="text-xs font-bold text-green-600 flex-shrink-0">+{v.co2_evitado || v.co2 || 0} kg</div>
+                      </div>
+                    )
+                  })}
+                </div>
               </div>
             </div>
           )}

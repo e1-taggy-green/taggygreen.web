@@ -5,21 +5,20 @@ import api from './api';
  */
 export const b2bService = {
   // --- Relatórios ESG ---
-  getRelatorioESG: () => api.get('/b2b/esg/relatorio'),
+  getRelatorioESG: (email) => api.get(`/api/v1/b2b/relatorios/esg?email=${email}`),
   
   // Ao baixar arquivos via Axios, precisamos pedir que o formato da resposta (responseType) seja um 'blob' (dados binários crus).
-  getRelatorioESG_PDF: () => api.get('/b2b/esg/relatorio/pdf', { responseType: 'blob' }),
-  getRelatorioESG_csv: () => api.get('/b2b/esg/relatorio/csv', { responseType: 'blob' }),
+  getRelatorioESG_PDF: (email) => api.get(`/api/v1/b2b/relatorios/esg/pdf?email=${email}`, { responseType: 'blob' }),
+  getRelatorioESG_csv: (email) => api.get(`/api/v1/b2b/relatorios/esg/csv?email=${email}`, { responseType: 'blob' }),
 
   // --- Relatório Performance ---
-  getPerfbyCategoria: () => api.get('/b2b/performance/categoria'),
-  
-  getRankingFrota: () => api.get('/b2b/performance/ranking'),
+  getPerfbyCategoria: (email) => api.get(`/api/v1/b2b/performance/categoria?email=${email}`),
+  getRankingFrota: (email) => api.get(`/api/v1/b2b/performance/ranking?email=${email}`),
 
   // --- Simulador B2B ---
   
   /**
    * Recebe um objeto com "lead" (nome, email, etc.) e "frota" (qtd carros, eventos).
    */
-  postSimulacao: (payload) => api.post('/b2b/simulador', payload),
+  postSimulacao: (payload) => api.post('/api/v1/b2b/simulador', payload),
 };

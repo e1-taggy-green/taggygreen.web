@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Leaf, User, Building2, Calculator } from "lucide-react";
 
 export function Logo({ size = "md", onClick }) {
   const sizes = { sm: "text-base", md: "text-xl", lg: "text-3xl" };
@@ -7,7 +8,7 @@ export function Logo({ size = "md", onClick }) {
   return (
     <button onClick={onClick} className="flex items-center gap-2.5 focus:outline-none">
       <div className={`${iconSizes[size]} rounded-xl bg-gradient-to-br from-green-400 to-green-700 flex items-center justify-center shadow-lg shadow-green-200 flex-shrink-0`}>
-        <span>🌿</span>
+        <Leaf className="text-white" size={size === "sm" ? 16 : size === "md" ? 20 : 32} />
       </div>
       <span className={`${sizes[size]} font-black tracking-tight`} style={{ fontFamily: "'Syne',sans-serif" }}>
         Edenred <span className="text-green-600">TaggyGreen</span>
@@ -30,19 +31,19 @@ export function Nav({ activePage, showB2bB2c = true }) {
               onClick={() => navigate("/b2c/hub")}
               className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-150 ${activePage === "b2c" ? "bg-green-500 text-white shadow-md shadow-green-200" : "text-gray-600 hover:bg-gray-100"}`}
             >
-              <span>👤</span> Portal B2C
+              <User size={16} /> Portal B2C
             </button>
             <button
               onClick={() => navigate("/b2b/dashboard")}
               className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-150 ${activePage === "b2b" ? "bg-green-500 text-white shadow-md shadow-green-200" : "text-gray-600 hover:bg-gray-100"}`}
             >
-              <span>🏢</span> Gestão B2B
+              <Building2 size={16} /> Gestão B2B
             </button>
             <button
               onClick={() => navigate("/simulador")}
               className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border-2 border-green-500 text-green-700 hover:bg-green-50 transition-all duration-150"
             >
-              <span>🌱</span> Simulador
+              <Calculator size={16} /> Simulador
             </button>
           </div>
         )}

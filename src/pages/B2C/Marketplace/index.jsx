@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Nav, Footer, OFFERS, CAT_COLORS, OfferCard } from "../../../components/shared";
+import { Coins, ShoppingBag, Lightbulb } from "lucide-react";
 
 /**
  * MARKETPLACE PAGE
@@ -24,7 +25,9 @@ export default function MarketplacePage() {
               <p className="text-sm text-gray-500 mt-0.5">Troque seus pontos de carbono em benefícios exclusivos</p>
             </div>
             <div className="flex items-center gap-3 bg-gradient-to-r from-green-50 to-white border-2 border-green-200 rounded-2xl px-5 py-3">
-              <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center text-xl"></div>
+              <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+                <Coins size={24} className="text-green-600" />
+              </div>
               <div>
                 <div className="text-xs text-gray-500 font-semibold">Meus Pontos de Carbono</div>
                 <div className="text-xl font-black text-green-700" style={{fontFamily:"'Syne',sans-serif"}}>1.250 pts</div>
@@ -39,7 +42,7 @@ export default function MarketplacePage() {
         <div className="max-w-6xl mx-auto">
           {/* INFO */}
           <div className="mb-6">
-            <div className="text-xs font-bold text-green-600 uppercase tracking-widest mb-1">🛍️ Ofertas Exclusivas</div>
+            <div className="text-xs font-bold text-green-600 uppercase tracking-widest mb-1">Ofertas Exclusivas</div>
             <h2 className="text-xl font-black text-gray-900 mb-1" style={{fontFamily:"'Syne',sans-serif"}}>Explore todas as ofertas</h2>
             <p className="text-sm text-gray-500">Cada oferta tem um custo em pontos de carbono. Quanto mais sustentável você for, mais pontos acumula!</p>
           </div>
@@ -62,7 +65,9 @@ export default function MarketplacePage() {
           {/* EMPTY STATE */}
           {filteredOffers.length === 0 && (
             <div className="text-center py-12">
-              <div className="text-5xl mb-4"></div>
+              <div className="mb-4">
+                <ShoppingBag size={48} className="text-gray-300 mx-auto" />
+              </div>
               <div className="text-lg font-black text-gray-900 mb-2">Nenhuma oferta nesta categoria</div>
               <p className="text-gray-500">Tente selecionar outra categoria</p>
             </div>
@@ -70,7 +75,9 @@ export default function MarketplacePage() {
 
           {/* INFO BOX */}
           <div className="mt-8 bg-green-50 border border-green-200 border-l-4 border-l-green-500 rounded-2xl p-5 flex items-start gap-3">
-            <span className="text-xl mt-0.5 flex-shrink-0">💡</span>
+            <span className="mt-0.5 flex-shrink-0">
+              <Lightbulb size={24} className="text-green-600" />
+            </span>
             <div>
               <div className="font-bold text-green-800 text-sm mb-1">Como funciona?</div>
               <div className="text-xs text-green-700 leading-relaxed">

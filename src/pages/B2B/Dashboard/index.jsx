@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Nav, Footer, MetricCard, Progress } from "../../../components/shared";
 import { usePerformanceData } from "../../../hooks/usePerformanceData";
 import { PerformanceDataGrid } from "../../../components/PerformanceDataGrid";

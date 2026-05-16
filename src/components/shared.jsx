@@ -134,7 +134,7 @@ export function OfferCard({ offer, showBadge }) {
         <div className="font-bold text-gray-900 text-sm mb-1">{offer.title}</div>
         <div className="font-bold text-green-600 text-sm mb-3">{offer.discount}</div>
         <div className="flex items-center justify-between mt-auto">
-          <div className="text-xs text-gray-400 flex items-center gap-1">🏆 {offer.pts.toLocaleString()} pts</div>
+          <div className="text-xs text-gray-400 flex items-center gap-1">Pts {offer.pts.toLocaleString()}</div>
           <button
             onClick={() => setResgated(!resgated)}
             className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all ${resgated ? "bg-gray-100 text-gray-500" : "bg-green-500 text-white hover:bg-green-600 shadow-md shadow-green-100"}`}

@@ -24,7 +24,7 @@ export default function MarketplacePage() {
               <p className="text-sm text-gray-500 mt-0.5">Troque seus pontos de carbono em benefícios exclusivos</p>
             </div>
             <div className="flex items-center gap-3 bg-gradient-to-r from-green-50 to-white border-2 border-green-200 rounded-2xl px-5 py-3">
-              <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center text-xl">🏆</div>
+              <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center text-xl"></div>
               <div>
                 <div className="text-xs text-gray-500 font-semibold">Meus Pontos de Carbono</div>
                 <div className="text-xl font-black text-green-700" style={{fontFamily:"'Syne',sans-serif"}}>1.250 pts</div>
@@ -46,7 +46,7 @@ export default function MarketplacePage() {
 
           {/* FILTROS */}
           <div className="flex gap-2 flex-wrap mb-6">
-            {[{id:"all",label:"Todos"},{id:"alimentacao",label:"🥦 Alimentação"},{id:"mobilidade",label:"🚗 Mobilidade"},{id:"estilo",label:"✨ Estilo de Vida"},{id:"servicos",label:"🔧 Serviços"}].map(f => (
+            {[{id:"all",label:"Todos"},{id:"alimentacao",label:" Alimentação"},{id:"mobilidade",label:" Mobilidade"},{id:"estilo",label:" Estilo de Vida"},{id:"servicos",label:" Serviços"}].map(f => (
               <button key={f.id} onClick={() => setFilterCat(f.id)}
                 className={`px-4 py-2 rounded-full border text-sm font-semibold transition-all ${filterCat===f.id?"bg-green-500 text-white border-green-500 shadow-md shadow-green-100":"border-gray-200 text-gray-600 hover:border-green-400 hover:text-green-700"}`}>
                 {f.label}
@@ -62,7 +62,7 @@ export default function MarketplacePage() {
           {/* EMPTY STATE */}
           {filteredOffers.length === 0 && (
             <div className="text-center py-12">
-              <div className="text-5xl mb-4">🌱</div>
+              <div className="text-5xl mb-4"></div>
               <div className="text-lg font-black text-gray-900 mb-2">Nenhuma oferta nesta categoria</div>
               <p className="text-gray-500">Tente selecionar outra categoria</p>
             </div>

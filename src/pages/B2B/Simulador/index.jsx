@@ -36,7 +36,7 @@ export default function SimuladorPage() {
           </svg>
         </div>
         <div className="relative z-10 max-w-xl mx-auto">
-          <div className="text-4xl mb-4">🌱</div>
+          <div className="text-4xl mb-4"></div>
           <h1 className="text-4xl font-black text-white mb-3" style={{ fontFamily: "'Syne',sans-serif" }}>
             Simulador Corporativo
           </h1>
@@ -51,7 +51,7 @@ export default function SimuladorPage() {
           {/* FORMULÁRIO */}
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
-              <span className="text-lg">📝</span>
+              <span className="text-lg"></span>
               <h3 className="font-black text-gray-900" style={{ fontFamily: "'Syne',sans-serif" }}>
                 Dados da Frota
               </h3>
@@ -111,17 +111,17 @@ export default function SimuladorPage() {
           {/* RESULTADOS */}
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
-              <span className="text-lg">📊</span>
+              <span className="text-lg"></span>
               <h3 className="font-black text-gray-900" style={{ fontFamily: "'Syne',sans-serif" }}>
                 Simulação
               </h3>
             </div>
             <div className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <MetricCard icon="⛽" label="Combustível Poupado" value={resultados.combustivelPoupado.toLocaleString()} unit="L" bg="bg-blue-50" />
-                <MetricCard icon="⏱️" label="Tempo Otimizado" value={resultados.tempoOtimizado.toLocaleString()} unit="hrs" bg="bg-amber-50" />
-                <MetricCard icon="💰" label="Economia Estimada" value={`R$ ${resultados.economiaEstimada.toLocaleString()}`} bg="bg-green-50" />
-                <MetricCard icon="📈" label="ROI Estimado" value={resultados.roiEstimado.toLocaleString()} unit="%" bg="bg-purple-50" />
+                <MetricCard icon="" label="Combustível Poupado" value={resultados.combustivelPoupado.toLocaleString()} unit="L" bg="bg-blue-50" />
+                <MetricCard icon="" label="Tempo Otimizado" value={resultados.tempoOtimizado.toLocaleString()} unit="hrs" bg="bg-amber-50" />
+                <MetricCard icon="" label="Economia Estimada" value={`R$ ${resultados.economiaEstimada.toLocaleString()}`} bg="bg-green-50" />
+                <MetricCard icon="" label="ROI Estimado" value={resultados.roiEstimado.toLocaleString()} unit="%" bg="bg-purple-50" />
               </div>
 
               <div className="bg-green-50 border border-green-200 border-l-4 border-l-green-500 rounded-2xl p-4 flex items-start gap-3">

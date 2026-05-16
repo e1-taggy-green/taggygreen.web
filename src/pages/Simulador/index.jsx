@@ -17,7 +17,7 @@ export default function SimuladorPage() {
           </svg>
         </div>
         <div className="relative z-10 max-w-xl mx-auto">
-          <div className="text-4xl mb-4">🌱</div>
+          <div className="text-4xl mb-4"></div>
           <h1 className="text-4xl font-black text-white mb-3" style={{ fontFamily: "'Syne',sans-serif" }}>
             Simulador de Impacto Verde
           </h1>
@@ -31,7 +31,7 @@ export default function SimuladorPage() {
         <div className="max-w-3xl mx-auto space-y-6">
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
-              <span className="text-lg">👤</span>
+              <span className="text-lg"></span>
               <h3 className="font-black text-gray-900" style={{ fontFamily: "'Syne',sans-serif" }}>Seus Dados</h3>
             </div>
             <div className="p-6 grid grid-cols-2 gap-4">
@@ -53,7 +53,7 @@ export default function SimuladorPage() {
 
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
-              <span className="text-lg">🚚</span>
+              <span className="text-lg"></span>
               <h3 className="font-black text-gray-900" style={{ fontFamily: "'Syne',sans-serif" }}>Dados da Frota</h3>
             </div>
             <div className="p-6 space-y-5">
@@ -77,7 +77,7 @@ export default function SimuladorPage() {
           </div>
 
           <button className="w-full py-4 bg-green-500 text-white rounded-2xl font-black text-lg hover:bg-green-600 transition-all shadow-xl shadow-green-200 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-3" style={{ fontFamily: "'Syne',sans-serif" }}>
-            <span>🌱</span> Simulação 
+            <span></span> Simulação 
           </button>
 
           <div className="space-y-4">
@@ -90,10 +90,10 @@ export default function SimuladorPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <MetricCard icon="⛽" label="Combustível Poupado/ano" value="1.470" unit="L" bg="bg-blue-50" />
-              <MetricCard icon="⏱️" label="Horas Otimizadas/ano" value="142" unit="hrs" bg="bg-amber-50" />
-              <MetricCard icon="💰" label="Economia Estimada/ano" value="R$ 18.450" bg="bg-green-50" />
-              <MetricCard icon="📈" label="ROI Estimado" value="285" unit="%" bg="bg-purple-50" />
+              <MetricCard icon="" label="Combustível Poupado/ano" value="1.470" unit="L" bg="bg-blue-50" />
+              <MetricCard icon="" label="Horas Otimizadas/ano" value="142" unit="hrs" bg="bg-amber-50" />
+              <MetricCard icon="" label="Economia Estimada/ano" value="R$ 18.450" bg="bg-green-50" />
+              <MetricCard icon="" label="ROI Estimado" value="285" unit="%" bg="bg-purple-50" />
             </div>
 
             

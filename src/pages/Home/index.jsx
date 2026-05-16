@@ -75,7 +75,7 @@ export default function HomePage() {
               <div className={`absolute top-3 right-3 text-xs font-bold px-2 py-0.5 rounded-full ${hovered === "b2c" ? "bg-green-500 text-white" : "bg-green-100 text-green-700"} transition-colors`}>
                 Grátis
               </div>
-              <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center text-2xl mb-4">🚗</div>
+              <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center text-2xl mb-4"></div>
               <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Pessoa Física · B2C</div>
               <div className="text-xl font-black text-gray-900 mb-2" style={{ fontFamily: "'Syne',sans-serif" }}>
                 Portal do Motorista
@@ -95,7 +95,7 @@ export default function HomePage() {
               <div className={`absolute top-3 right-3 text-xs font-bold px-2 py-0.5 rounded-full ${hovered === "b2b" ? "bg-blue-500 text-white" : "bg-blue-100 text-blue-700"} transition-colors`}>
                 Corporativo
               </div>
-              <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-2xl mb-4">🏢</div>
+              <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-2xl mb-4"></div>
               <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Empresa · B2B</div>
               <div className="text-xl font-black text-gray-900 mb-2" style={{ fontFamily: "'Syne',sans-serif" }}>
                 Gestão de Frotas e ESG
@@ -109,9 +109,9 @@ export default function HomePage() {
 
           <button onClick={() => navigate("/simulador")} className="w-full max-w-2xl mx-auto flex items-center justify-between gap-4 bg-gradient-to-r from-green-700 to-green-900 rounded-2xl px-7 py-5 hover:from-green-800 hover:to-green-950 transition-all group shadow-lg shadow-green-900/20">
             <div className="text-left">
-              <div className="text-xs font-bold text-green-300 uppercase tracking-widest mb-1">🌱 Ferramenta mockada</div>
+              <div className="text-xs font-bold text-green-300 uppercase tracking-widest mb-1"> Ferramenta</div>
               <div className="text-lg font-black text-white" style={{ fontFamily: "'Syne',sans-serif" }}>Simulador de Impacto Verde</div>
-              <div className="text-sm text-white/60 mt-0.5">Veja o design com dados fictícios e sem cálculos ao vivo.</div>
+              <div className="text-sm text-white/60 mt-0.5">.</div>
             </div>
             <div className="flex-shrink-0 bg-white text-green-800 font-bold text-sm px-5 py-2.5 rounded-xl group-hover:bg-green-50 transition-colors shadow">
               Ver Simulação →

@@ -88,7 +88,7 @@ export default function DashboardB2B() {
 
               {/* GHG */}
               <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5 flex items-center gap-4">
-                <div className="text-3xl flex-shrink-0">✅</div>
+                <div className="text-3xl flex-shrink-0"></div>
                 <div className="flex-1">
                   <div className="font-bold text-blue-900 mb-1">Dados Certificados — GHG Protocol</div>
                   <div className="text-sm text-blue-700 leading-relaxed">Todos os cálculos estão em conformidade com as diretrizes do GHG Protocol para emissões de escopo 1 e 3. Utilize os botões de exportação para baixar o documento completo.</div>
@@ -101,7 +101,7 @@ export default function DashboardB2B() {
                 {/* Tabela passagens */}
                 <div className="col-span-3 bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
                   <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-                    <div className="font-bold text-gray-800 text-sm flex items-center gap-2">🛣️ Passagens por Categoria</div>
+                    <div className="font-bold text-gray-800 text-sm flex items-center gap-2">Passagens por Categoria</div>
                     <span className="text-xs bg-gray-100 text-gray-600 font-bold px-2 py-0.5 rounded-full">{periodo}</span>
                   </div>
                   <table className="w-full text-sm">
@@ -149,7 +149,7 @@ export default function DashboardB2B() {
           {tab === "performance" && (
             <div className="space-y-5">
               <div className="bg-amber-50 border border-amber-200 border-l-4 border-l-amber-500 rounded-2xl p-4 flex gap-3">
-                <span className="text-xl mt-0.5 flex-shrink-0">⚠️</span>
+                <span className="text-xl mt-0.5 flex-shrink-0"></span>
                 <div>
                   <div className="font-bold text-amber-800 text-sm mb-1">Oportunidade de Melhoria</div>
                   <div className="text-xs text-amber-700 leading-relaxed">A categoria <b>Caminhões</b> apresenta maior potencial de otimização de rotas. Veículos reduziram apenas 62% do CO₂ possível — emissões evitadas podem crescer 28% com ajuste de rotas.</div>
@@ -157,9 +157,9 @@ export default function DashboardB2B() {
               </div>
 
               <div className="grid grid-cols-3 gap-4">
-                <MetricCard icon="⚡" label="Eficiência Média"    value="78"   unit="%" change="Meta: 85%" bg="bg-green-50"/>
-                <MetricCard icon="🛣️" label="Km com Tag"          value="284k" unit="km" change="+9% vs mês anterior" bg="bg-blue-50"/>
-                <MetricCard icon="📡" label="Integração Tag"      value="94"   unit="%" change="940/1.000 ativos" bg="bg-amber-50"/>
+                <MetricCard icon="" label="Eficiência Média"    value="78"   unit="%" change="Meta: 85%" bg="bg-green-50"/>
+                <MetricCard icon="" label="Km com Tag"          value="284k" unit="km" change="+9% vs mês anterior" bg="bg-blue-50"/>
+                <MetricCard icon="" label="Integração Tag"      value="94"   unit="%" change="940/1.000 ativos" bg="bg-amber-50"/>
               </div>
 
               {/* Gráfico de Categorias */}
@@ -176,7 +176,7 @@ export default function DashboardB2B() {
               {perfLoading && (
                 <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
                   <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-                    <div className="font-bold text-gray-800 text-sm">⚡ Performance por Categoria</div>
+                    <div className="font-bold text-gray-800 text-sm">Performance por Categoria</div>
                     <span className="text-xs bg-gray-100 text-gray-600 font-bold px-2 py-0.5 rounded-full">Abr/2026</span>
                   </div>
                   <table className="w-full text-sm">

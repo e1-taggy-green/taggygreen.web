@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Logo, Footer } from "../../components/shared";
+import { User, Building2 } from "lucide-react";
 
 export default function HomePage() {
   const [hovered, setHovered] = useState(null);
@@ -75,7 +76,9 @@ export default function HomePage() {
               <div className={`absolute top-3 right-3 text-xs font-bold px-2 py-0.5 rounded-full ${hovered === "b2c" ? "bg-green-500 text-white" : "bg-green-100 text-green-700"} transition-colors`}>
                 Grátis
               </div>
-              <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center text-2xl mb-4"></div>
+              <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center text-2xl mb-4">
+                <User size={28} className="text-green-600" />
+              </div>
               <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Pessoa Física · B2C</div>
               <div className="text-xl font-black text-gray-900 mb-2" style={{ fontFamily: "'Syne',sans-serif" }}>
                 Portal do Motorista
@@ -95,7 +98,9 @@ export default function HomePage() {
               <div className={`absolute top-3 right-3 text-xs font-bold px-2 py-0.5 rounded-full ${hovered === "b2b" ? "bg-blue-500 text-white" : "bg-blue-100 text-blue-700"} transition-colors`}>
                 Corporativo
               </div>
-              <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-2xl mb-4"></div>
+              <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-2xl mb-4">
+                <Building2 size={28} className="text-blue-600" />
+              </div>
               <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Empresa · B2B</div>
               <div className="text-xl font-black text-gray-900 mb-2" style={{ fontFamily: "'Syne',sans-serif" }}>
                 Gestão de Frotas e ESG

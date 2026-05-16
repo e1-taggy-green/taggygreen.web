@@ -1,15 +1,59 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Nav, Footer, MetricCard, Progress } from "../../../components/shared";
 import { usePerformanceData } from "../../../hooks/usePerformanceData";
 import { PerformanceDataGrid } from "../../../components/PerformanceDataGrid";
 import { PerformanceCategoryChart } from "../../../components/PerformanceCategoryChart";
 import { ExportButtons } from "../../../components/ExportButtons";
+import { 
+  LayoutDashboard, 
+  Calculator, 
+  FileText, 
+  Activity, 
+  Leaf, 
+  Fuel, 
+  Clock, 
+  Car, 
+  Coins, 
+  BadgeCheck, 
+  Map, 
+  Trophy, 
+  AlertTriangle, 
+  Zap, 
+  Wifi, 
+  Truck, 
+  Bike, 
+  Bus 
+} from "lucide-react";
+
+class DashboardErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, errorMessage: '' };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, errorMessage: error.toString() };
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+          <div className="bg-white p-8 rounded-2xl border border-red-200 shadow-sm max-w-2xl w-full">
+            <h1 className="text-2xl font-bold text-red-600 mb-4 flex items-center gap-2"><AlertTriangle size={28} /> Ops! Algo quebrou a tela.</h1>
+            <p className="text-gray-700 mb-4">Um erro inesperado aconteceu ao desenhar os componentes. O React ocultou a tela, mas aqui está o erro exato para facilitar a correção:</p>
+            <pre className="bg-red-50 p-4 rounded-xl text-red-800 font-mono text-sm overflow-auto whitespace-pre-wrap">{this.state.errorMessage}</pre>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 /**
  * B2B DASHBOARD PAGE
  * Gestão de Frotas e ESG - Relatórios e performance
  */
-export default function DashboardB2B() {
+function DashboardB2BContent() {
   const [tab, setTab] = useState("esg");
   const [periodo, setPeriodo] = useState("Abril/2026");
   const { rankingData, categoryPerformance, loading: perfLoading } = usePerformanceData();
@@ -23,10 +67,10 @@ export default function DashboardB2B() {
   ];
 
   const catPerf = [
-    {icon:"", cat:"Carros e Utilitários", veic:620, ef:89, co2:"2.140", pot:"+260", status:"Ótimo", color:"bg-green-500"},
-    {icon:"", cat:"Caminhões e Pesados",   veic:240, ef:62, co2:"1.850", pot:"+520", status:"Atenção", color:"bg-amber-400"},
-    {icon:"", cat:"Motos",                 veic:100, ef:95, co2:"385",   pot:"+20",  status:"Excelente", color:"bg-green-500"},
-    {icon:"", cat:"Vans e Kombis",          veic:40,  ef:73, co2:"280",   pot:"+104", status:"Regular", color:"bg-gray-400"},
+    {icon: <Car size={18} />, cat:"Carros e Utilitários", veic:620, ef:89, co2:"2.140", pot:"+260", status:"Ótimo", color:"bg-green-500"},
+    {icon: <Truck size={18} />, cat:"Caminhões e Pesados",   veic:240, ef:62, co2:"1.850", pot:"+520", status:"Atenção", color:"bg-amber-400"},
+    {icon: <Bike size={18} />, cat:"Motos",                 veic:100, ef:95, co2:"385",   pot:"+20",  status:"Excelente", color:"bg-green-500"},
+    {icon: <Bus size={18} />, cat:"Vans e Kombis",          veic:40,  ef:73, co2:"280",   pot:"+104", status:"Regular", color:"bg-gray-400"},
   ];
 
   return (
@@ -38,22 +82,25 @@ export default function DashboardB2B() {
         <div className="max-w-6xl mx-auto px-6 pt-6 pb-0">
           <div className="flex items-start justify-between mb-5 flex-wrap gap-4">
             <div>
-              <span className="inline-flex items-center gap-1.5 text-xs font-bold bg-blue-100 text-blue-700 rounded-full px-3 py-1 mb-2 uppercase tracking-wide"> Painel Corporativo</span>
+              <span className="inline-flex items-center gap-1.5 text-xs font-bold bg-blue-100 text-blue-700 rounded-full px-3 py-1 mb-2 uppercase tracking-wide"><LayoutDashboard size={14} /> Painel Corporativo</span>
               <h1 className="text-2xl font-black text-gray-900" style={{fontFamily:"'Syne',sans-serif"}}>Gestão de Frotas e ESG</h1>
               <p className="text-sm text-gray-500 mt-0.5 max-w-lg">Acompanhe a eficiência da frota, gere relatórios auditáveis e simule o impacto sustentável.</p>
             </div>
             <div className="flex gap-2 flex-wrap">
               <ExportButtons />
-              <button className="flex items-center gap-1.5 text-xs font-bold bg-green-500 text-white rounded-xl px-4 py-2 hover:bg-green-600 transition-all shadow-md shadow-green-100"> Simulador</button>
+              <button className="flex items-center gap-1.5 text-xs font-bold bg-green-500 text-white rounded-xl px-4 py-2 hover:bg-green-600 transition-all shadow-md shadow-green-100"><Calculator size={14} /> Simulador</button>
             </div>
           </div>
           <div className="flex gap-0">
-            {[{id:"esg",label:" Relatório ESG"},{id:"performance",label:" Performance"}].map(t => (
-              <button key={t.id} onClick={() => setTab(t.id)}
-                className={`px-5 py-3 text-sm font-semibold border-b-2 transition-all ${tab===t.id?"border-green-500 text-green-700":"border-transparent text-gray-500 hover:text-gray-900"}`}>
-                {t.label}
-              </button>
-            ))}
+            {[{id:"esg",label:"Relatório ESG", icon: FileText},{id:"performance",label:"Performance", icon: Activity}].map(t => {
+              const Icon = t.icon;
+              return (
+                <button key={t.id} onClick={() => setTab(t.id)}
+                  className={`flex items-center gap-2 px-5 py-3 text-sm font-semibold border-b-2 transition-all ${tab===t.id?"border-green-500 text-green-700":"border-transparent text-gray-500 hover:text-gray-900"}`}>
+                  <Icon size={16} /> {t.label}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -78,17 +125,17 @@ export default function DashboardB2B() {
 
               {/* 6 metrics */}
               <div className="grid grid-cols-3 gap-4">
-                <MetricCard icon="" label="CO₂ Evitado"         value="4.375" unit="kg"    change="+12% vs mês anterior" bg="bg-green-50"/>
-                <MetricCard icon="" label="Combustível Poupado"  value="1.470" unit="L"     change="+8% vs mês anterior"  bg="bg-blue-50"/>
-                <MetricCard icon="" label="Tempo Otimizado"      value="142"   unit="hrs"   change="+5% eficiência"        bg="bg-amber-50"/>
-                <MetricCard icon="" label="Frota Total"          value="1.000" unit="veíc." change="+50 integrados"        bg="bg-teal-50"/>
-                <MetricCard icon="" label="R$ Economizado"       value="18.450" unit="R$"   change="+18% retorno"          bg="bg-purple-50"/>
-                <MetricCard icon="" label="ROI"                  value="285"   unit="%"     change="Excelente performance"  bg="bg-red-50"/>
+                <MetricCard icon={<Leaf size={20} />} label="CO₂ Evitado"         value="4.375" unit="kg"    change="+12% vs mês anterior" bg="bg-green-50"/>
+                <MetricCard icon={<Fuel size={20} />} label="Combustível Poupado"  value="1.470" unit="L"     change="+8% vs mês anterior"  bg="bg-blue-50"/>
+                <MetricCard icon={<Clock size={20} />} label="Tempo Otimizado"      value="142"   unit="hrs"   change="+5% eficiência"        bg="bg-amber-50"/>
+                <MetricCard icon={<Car size={20} />} label="Frota Total"          value="1.000" unit="veíc." change="+50 integrados"        bg="bg-teal-50"/>
+                <MetricCard icon={<Coins size={20} />} label="R$ Economizado"       value="18.450" unit="R$"   change="+18% retorno"          bg="bg-purple-50"/>
+                <MetricCard icon={<Activity size={20} />} label="ROI"                  value="285"   unit="%"     change="Excelente performance"  bg="bg-red-50"/>
               </div>
 
               {/* GHG */}
               <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5 flex items-center gap-4">
-                <div className="text-3xl flex-shrink-0"></div>
+                <div className="text-3xl flex-shrink-0 text-blue-500"><BadgeCheck size={32} /></div>
                 <div className="flex-1">
                   <div className="font-bold text-blue-900 mb-1">Dados Certificados — GHG Protocol</div>
                   <div className="text-sm text-blue-700 leading-relaxed">Todos os cálculos estão em conformidade com as diretrizes do GHG Protocol para emissões de escopo 1 e 3. Utilize os botões de exportação para baixar o documento completo.</div>
@@ -101,7 +148,7 @@ export default function DashboardB2B() {
                 {/* Tabela passagens */}
                 <div className="col-span-3 bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
                   <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-                    <div className="font-bold text-gray-800 text-sm flex items-center gap-2">Passagens por Categoria</div>
+                    <div className="font-bold text-gray-800 text-sm flex items-center gap-2"><Map size={18} /> Passagens por Categoria</div>
                     <span className="text-xs bg-gray-100 text-gray-600 font-bold px-2 py-0.5 rounded-full">{periodo}</span>
                   </div>
                   <table className="w-full text-sm">
@@ -110,13 +157,15 @@ export default function DashboardB2B() {
                     </tr></thead>
                     <tbody>
                       {[
-                        [" Carros","4.820","2.140 kg","R$ 8.950"],
-                        [" Caminhões","1.230","1.850 kg","R$ 7.200"],
-                        [" Motos","980","385 kg","R$ 1.800"],
-                        [" Estacionamentos","2.400","0 kg","R$ 500"],
-                      ].map(([c,p,co2,eco],i) => (
+                        [<Car size={16} />, "Carros","4.820","2.140 kg","R$ 8.950"],
+                        [<Truck size={16} />, "Caminhões","1.230","1.850 kg","R$ 7.200"],
+                        [<Bike size={16} />, "Motos","980","385 kg","R$ 1.800"],
+                        [<LayoutDashboard size={16} />, "Estacionamentos","2.400","0 kg","R$ 500"],
+                      ].map(([icon, c, p, co2, eco], i) => (
                         <tr key={i} className="border-t border-gray-50 hover:bg-gray-50 transition-colors">
-                          <td className="px-4 py-3 text-gray-800 font-medium">{c}</td>
+                          <td className="px-4 py-3 text-gray-800 font-medium">
+                            <div className="flex items-center gap-2 text-gray-500">{icon} <span className="text-gray-800">{c}</span></div>
+                          </td>
                           <td className="px-4 py-3 text-gray-600">{p}</td>
                           <td className="px-4 py-3 text-green-600 font-bold">{co2}</td>
                           <td className="px-4 py-3 text-gray-600">{eco}</td>
@@ -128,7 +177,7 @@ export default function DashboardB2B() {
 
                 {/* Ranking */}
                 <div className="col-span-2 bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
-                  <div className="px-5 py-4 border-b border-gray-100 font-bold text-gray-800 text-sm"> Top Veículos</div>
+                  <div className="px-5 py-4 border-b border-gray-100 font-bold text-gray-800 text-sm flex items-center gap-2"><Trophy size={18} /> Top Veículos</div>
                   {veiculos.map(v => (
                     <div key={v.rank} className="flex items-center gap-3 px-4 py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
                       <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0 ${v.rank===1?"bg-amber-100 text-amber-800":v.rank===2?"bg-gray-200 text-gray-700":v.rank===3?"bg-orange-100 text-orange-800":"bg-gray-100 text-gray-500"}`}>{v.rank}</div>
@@ -149,7 +198,7 @@ export default function DashboardB2B() {
           {tab === "performance" && (
             <div className="space-y-5">
               <div className="bg-amber-50 border border-amber-200 border-l-4 border-l-amber-500 rounded-2xl p-4 flex gap-3">
-                <span className="text-xl mt-0.5 flex-shrink-0"></span>
+                <span className="text-xl mt-0.5 flex-shrink-0 text-amber-500"><AlertTriangle size={24} /></span>
                 <div>
                   <div className="font-bold text-amber-800 text-sm mb-1">Oportunidade de Melhoria</div>
                   <div className="text-xs text-amber-700 leading-relaxed">A categoria <b>Caminhões</b> apresenta maior potencial de otimização de rotas. Veículos reduziram apenas 62% do CO₂ possível — emissões evitadas podem crescer 28% com ajuste de rotas.</div>
@@ -157,9 +206,9 @@ export default function DashboardB2B() {
               </div>
 
               <div className="grid grid-cols-3 gap-4">
-                <MetricCard icon="" label="Eficiência Média"    value="78"   unit="%" change="Meta: 85%" bg="bg-green-50"/>
-                <MetricCard icon="" label="Km com Tag"          value="284k" unit="km" change="+9% vs mês anterior" bg="bg-blue-50"/>
-                <MetricCard icon="" label="Integração Tag"      value="94"   unit="%" change="940/1.000 ativos" bg="bg-amber-50"/>
+                <MetricCard icon={<Zap size={20} />} label="Eficiência Média"    value="78"   unit="%" change="Meta: 85%" bg="bg-green-50"/>
+                <MetricCard icon={<Map size={20} />} label="Km com Tag"          value="284k" unit="km" change="+9% vs mês anterior" bg="bg-blue-50"/>
+                <MetricCard icon={<Wifi size={20} />} label="Integração Tag"      value="94"   unit="%" change="940/1.000 ativos" bg="bg-amber-50"/>
               </div>
 
               {/* Gráfico de Categorias */}
@@ -176,7 +225,7 @@ export default function DashboardB2B() {
               {perfLoading && (
                 <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
                   <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-                    <div className="font-bold text-gray-800 text-sm">Performance por Categoria</div>
+                    <div className="font-bold text-gray-800 text-sm flex items-center gap-2"><Activity size={18} /> Performance por Categoria</div>
                     <span className="text-xs bg-gray-100 text-gray-600 font-bold px-2 py-0.5 rounded-full">Abr/2026</span>
                   </div>
                   <table className="w-full text-sm">
@@ -188,7 +237,11 @@ export default function DashboardB2B() {
                     <tbody>
                       {catPerf.map((row,i) => (
                         <tr key={i} className="border-t border-gray-50 hover:bg-gray-50 transition-colors">
-                          <td className="px-4 py-3 text-gray-800 font-medium">{row.icon} {row.cat}</td>
+                          <td className="px-4 py-3 text-gray-800 font-medium">
+                            <div className="flex items-center gap-2">
+                              <span className="text-gray-500">{row.icon}</span> {row.cat}
+                            </div>
+                          </td>
                           <td className="px-4 py-3 text-gray-600">{row.veic}</td>
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-2">
@@ -215,7 +268,24 @@ export default function DashboardB2B() {
           )}
         </div>
       </div>
+
+      {/* ASSET OCULTO PARA O PDF NATIVO */}
+      {/* Mantemos apenas o gráfico oculto para que ele possa ser "fotografado" e inserido no PDF oficial */}
+      <div style={{ position: "fixed", top: "200vh", pointerEvents: "none" }}>
+        <div id="pdf-chart-container" className="w-[700px] h-[350px] bg-white p-4">
+          {!perfLoading && <PerformanceCategoryChart data={categoryPerformance} />}
+        </div>
+      </div>
+
       <Footer/>
     </div>
+  );
+}
+
+export default function DashboardB2B() {
+  return (
+    <DashboardErrorBoundary>
+      <DashboardB2BContent />
+    </DashboardErrorBoundary>
   );
 }

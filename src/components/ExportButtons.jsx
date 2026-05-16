@@ -27,7 +27,7 @@ export function ExportButtons() {
           className="flex items-center gap-1.5 text-xs font-semibold border border-gray-300 rounded-xl px-4 py-2 hover:border-blue-500 hover:text-blue-700 hover:bg-blue-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           title="Baixar relatório em formato CSV"
         >
-          <span className={loading ? "animate-spin" : ""}>CSV</span>
+          <span className={loading ? "animate-spin" : ""}></span>
           {loading ? "Processando..." : "Exportar CSV"}
         </button>
 
@@ -38,7 +38,7 @@ export function ExportButtons() {
           className="flex items-center gap-1.5 text-xs font-semibold border border-gray-300 rounded-xl px-4 py-2 hover:border-red-500 hover:text-red-700 hover:bg-red-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           title="Baixar relatório em formato PDF"
         >
-          <span className={loading ? "animate-spin" : ""}>PDF</span>
+          <span className={loading ? "animate-spin" : ""}></span>
           {loading ? "Processando..." : "Exportar PDF"}
         </button>
       </div>

@@ -20,5 +20,5 @@ export const b2bService = {
   /**
    * Recebe um objeto com "lead" (nome, email, etc.) e "frota" (qtd carros, eventos).
    */
-  postSimulacao: (payload) => api.post('/api/v1/b2b/simulador', payload),
+  postSimulacao: (payload) => api.post('/api/v1/simulador/simulacao', payload),
 };

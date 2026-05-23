@@ -1,11 +1,10 @@
-﻿import { BrowserRouter, Routes, Route } from 'react-router-dom';
+﻿﻿import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import Home from '../pages/Home';
 import HubB2C from '../pages/B2C/Hub';
 import MarketplaceB2C from '../pages/B2C/Marketplace';
 import DashboardB2B from '../pages/B2B/Dashboard';
 import SimuladorB2B from '../pages/B2B/Simulador';
-import Simulador from '../pages/Simulador';
 
 export default function AppRoutes() {
   return (
@@ -16,7 +15,7 @@ export default function AppRoutes() {
         <Route path="/b2c/marketplace" element={<MarketplaceB2C />} />
         <Route path="/b2b/dashboard" element={<DashboardB2B />} />
         <Route path="/b2b/simulador" element={<SimuladorB2B />} />
-        <Route path="/simulador" element={<Simulador />} />
+        <Route path="/simulador" element={<SimuladorB2B />} />
         <Route path="*" element={<h1 className="text-center mt-10">404 - Página Não Encontrada</h1>} />
       </Routes>
     </BrowserRouter>

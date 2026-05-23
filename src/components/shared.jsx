@@ -40,7 +40,7 @@ export function Nav({ activePage, showB2bB2c = true }) {
               <Building2 size={16} /> Gestão B2B
             </button>
             <button
-              onClick={() => navigate("/simulador")}
+              onClick={() => navigate("/b2b/simulador")}
               className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border-2 border-green-500 text-green-700 hover:bg-green-50 transition-all duration-150"
             >
               <Calculator size={16} /> Simulador

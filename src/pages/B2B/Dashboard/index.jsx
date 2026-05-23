@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Nav, Footer, MetricCard, Progress } from "../../../components/shared";
 import { usePerformanceData } from "../../../hooks/usePerformanceData";
 import { PerformanceDataGrid } from "../../../components/PerformanceDataGrid";
@@ -24,6 +25,7 @@ import {
   Bike, 
   Bus 
 } from "lucide-react";
+import { b2bService } from "../../../services/b2bService";
 
 class DashboardErrorBoundary extends React.Component {
   constructor(props) {
@@ -54,9 +56,21 @@ class DashboardErrorBoundary extends React.Component {
  * Gestão de Frotas e ESG - Relatórios e performance
  */
 function DashboardB2BContent() {
+  const navigate = useNavigate();
   const [tab, setTab] = useState("esg");
   const [periodo, setPeriodo] = useState("Abril/2026");
   const { rankingData, categoryPerformance, loading: perfLoading } = usePerformanceData();
+  const [esgSummary, setEsgSummary] = useState(null);
+  const [topVeiculos, setTopVeiculos] = useState([]);
+
+  // Efeito para buscar os dados reais das rotas do backend
+  useEffect(() => {
+    const email = "contato@empresa.com"; // Email de teste - idealmente viria do Contexto de Auth
+    if (tab === "esg") {
+      b2bService.getRelatorioESG(email).then(res => setEsgSummary(res.data)).catch(console.error);
+      b2bService.getRankingFrota(email).then(res => setTopVeiculos(res.data)).catch(console.error);
+    }
+  }, [tab, periodo]);
 
   const veiculos = [
     {rank:1, placa:"ABC-1234", modelo:"Ford Transit", rota:"SP–Campinas", pass:280, co2:580, pct:100},
@@ -88,7 +102,7 @@ function DashboardB2BContent() {
             </div>
             <div className="flex gap-2 flex-wrap">
               <ExportButtons />
-              <button className="flex items-center gap-1.5 text-xs font-bold bg-green-500 text-white rounded-xl px-4 py-2 hover:bg-green-600 transition-all shadow-md shadow-green-100"><Calculator size={14} /> Simulador</button>
+              <button onClick={() => navigate('/b2b/simulador')} className="flex items-center gap-1.5 text-xs font-bold bg-green-500 text-white rounded-xl px-4 py-2 hover:bg-green-600 transition-all shadow-md shadow-green-100"><Calculator size={14} /> Simulador</button>
             </div>
           </div>
           <div className="flex gap-0">
@@ -125,12 +139,12 @@ function DashboardB2BContent() {
 
               {/* 6 metrics */}
               <div className="grid grid-cols-3 gap-4">
-                <MetricCard icon={<Leaf size={20} />} label="CO₂ Evitado"         value="4.375" unit="kg"    change="+12% vs mês anterior" bg="bg-green-50"/>
-                <MetricCard icon={<Fuel size={20} />} label="Combustível Poupado"  value="1.470" unit="L"     change="+8% vs mês anterior"  bg="bg-blue-50"/>
-                <MetricCard icon={<Clock size={20} />} label="Tempo Otimizado"      value="142"   unit="hrs"   change="+5% eficiência"        bg="bg-amber-50"/>
-                <MetricCard icon={<Car size={20} />} label="Frota Total"          value="1.000" unit="veíc." change="+50 integrados"        bg="bg-teal-50"/>
-                <MetricCard icon={<Coins size={20} />} label="R$ Economizado"       value="18.450" unit="R$"   change="+18% retorno"          bg="bg-purple-50"/>
-                <MetricCard icon={<Activity size={20} />} label="ROI"                  value="285"   unit="%"     change="Excelente performance"  bg="bg-red-50"/>
+                <MetricCard icon={<Leaf size={20} />} label="CO₂ Evitado"         value={esgSummary?.co2_evitado_kg?.toLocaleString(undefined, {maximumFractionDigits: 1}) || "4.375"} unit="kg"    change="Atualizado" bg="bg-green-50"/>
+                <MetricCard icon={<Fuel size={20} />} label="Combustível Poupado"  value={esgSummary?.combustivel_evitado_litros?.toLocaleString(undefined, {maximumFractionDigits: 1}) || "1.470"} unit="L"     change="Atualizado"  bg="bg-blue-50"/>
+                <MetricCard icon={<Clock size={20} />} label="Tempo Otimizado"      value={esgSummary ? Math.round(esgSummary.tempo_economizado_minutos / 60).toLocaleString() : "142"}   unit="hrs"   change="Atualizado"        bg="bg-amber-50"/>
+                <MetricCard icon={<Car size={20} />} label="Frota Total"          value={esgSummary?.frota_total?.toLocaleString() || "1.000"} unit="veíc." change="Veículos ativos"        bg="bg-teal-50"/>
+                <MetricCard icon={<Coins size={20} />} label="R$ Economizado"       value={esgSummary?.economia_financeira?.toLocaleString(undefined, {maximumFractionDigits: 2}) || "18.450"} unit="R$"   change="Estimativa real"          bg="bg-purple-50"/>
+                <MetricCard icon={<Activity size={20} />} label="ROI"                  value={esgSummary?.roi?.toLocaleString() || "285"}   unit="%"     change="Excelente performance"  bg="bg-red-50"/>
               </div>
 
               {/* GHG */}
@@ -178,15 +192,15 @@ function DashboardB2BContent() {
                 {/* Ranking */}
                 <div className="col-span-2 bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
                   <div className="px-5 py-4 border-b border-gray-100 font-bold text-gray-800 text-sm flex items-center gap-2"><Trophy size={18} /> Top Veículos</div>
-                  {veiculos.map(v => (
-                    <div key={v.rank} className="flex items-center gap-3 px-4 py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
-                      <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0 ${v.rank===1?"bg-amber-100 text-amber-800":v.rank===2?"bg-gray-200 text-gray-700":v.rank===3?"bg-orange-100 text-orange-800":"bg-gray-100 text-gray-500"}`}>{v.rank}</div>
+                  {(topVeiculos.length > 0 ? topVeiculos : veiculos.map(v => ({posicao: v.rank, placa: v.placa, tipo: v.modelo, co2_evitado_kg: v.co2, transacoes: v.pass, pct: v.pct}))).map(v => (
+                    <div key={v.posicao} className="flex items-center gap-3 px-4 py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0 ${v.posicao===1?"bg-amber-100 text-amber-800":v.posicao===2?"bg-gray-200 text-gray-700":v.posicao===3?"bg-orange-100 text-orange-800":"bg-gray-100 text-gray-500"}`}>{v.posicao}</div>
                       <div className="flex-1 min-w-0">
-                        <div className="font-semibold text-xs text-gray-800 truncate">{v.placa} · {v.modelo}</div>
-                        <div className="text-xs text-gray-400">{v.rota}</div>
-                        <div className="mt-1.5"><Progress value={v.pct}/></div>
+                        <div className="font-semibold text-xs text-gray-800 truncate">{v.placa} · {v.tipo}</div>
+                        <div className="text-xs text-gray-400">{v.transacoes} transações registradas</div>
+                        <div className="mt-1.5"><Progress value={v.pct || Math.min(100, v.transacoes * 10)}/></div>
                       </div>
-                      <div className="text-xs font-bold text-green-600 flex-shrink-0">+{v.co2} kg</div>
+                      <div className="text-xs font-bold text-green-600 flex-shrink-0">+{v.co2_evitado_kg} kg</div>
                     </div>
                   ))}
                 </div>

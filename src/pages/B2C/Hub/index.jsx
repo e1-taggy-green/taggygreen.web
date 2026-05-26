@@ -17,14 +17,14 @@ export default function HubB2C() {
 
       {/* HEADER PAINEL */}
       <div className="bg-white border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-6 pt-6 pb-0">
-          <div className="flex items-start justify-between mb-5 flex-wrap gap-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-6 pb-0">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-5 gap-4">
             <div>
               <h1 className="text-2xl font-black text-gray-900" style={{fontFamily:"'Syne',sans-serif"}}>Olá, Renato. </h1>
-              <p className="text-sm text-gray-500 mt-0.5">Bem-vindo ao seu painel sustentável. Veja seu impacto no mundo.</p>
+              <p className="text-sm text-gray-500 mt-0.5">Bem-vindo ao seu painel sustentável. Veja seu impacto no world.</p>
             </div>
-            <div className="flex items-center gap-3 bg-gradient-to-r from-green-50 to-white border-2 border-green-200 rounded-2xl px-5 py-3">
-              <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+            <div className="flex items-center gap-3 bg-gradient-to-r from-green-50 to-white border-2 border-green-200 rounded-2xl px-5 py-3 self-start sm:self-auto w-full sm:w-auto">
+              <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
                 <Coins size={24} className="text-green-600" />
               </div>
               <div>
@@ -33,11 +33,12 @@ export default function HubB2C() {
               </div>
             </div>
           </div>
-          {/* TABS */}
-          <div className="flex gap-0">
-            {[{id:"rastro",label:" Meu Rastro"},{id:"marketplace",label:" Marketplace Verde", action: () => navigate("/b2c/marketplace")},{id:"historico",label:" Histórico"}].map(t => (
+          
+          {/* TABS: Com scroll horizontal suave no mobile */}
+          <div className="flex gap-0 overflow-x-auto whitespace-nowrap scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
+            {[{id:"rastro",label:"Meu Rastro"},{id:"marketplace",label:"Marketplace Verde", action: () => navigate("/b2c/marketplace")},{id:"historico",label:"Histórico"}].map(t => (
               <button key={t.id} onClick={t.action || (() => setTab(t.id))}
-                className={`px-5 py-3 text-sm font-semibold border-b-2 transition-all ${tab===t.id?"border-green-500 text-green-700":"border-transparent text-gray-500 hover:text-gray-900"}`}>
+                className={`px-5 py-3 text-sm font-semibold border-b-2 transition-all flex-shrink-0 ${tab===t.id?"border-green-500 text-green-700":"border-transparent text-gray-500 hover:text-gray-900"}`}>
                 {t.label}
               </button>
             ))}
@@ -46,35 +47,36 @@ export default function HubB2C() {
       </div>
 
       {/* CONTENT */}
-      <div className="flex-1 bg-gray-50 px-6 py-7">
+      <div className="flex-1 bg-gray-50 px-4 sm:px-6 py-6 sm:py-7">
         <div className="max-w-6xl mx-auto">
 
           {/* ── RASTRO ── */}
           {tab === "rastro" && (
             <div className="space-y-5">
               {/* Hero rastro */}
-              <div className="relative bg-gradient-to-br from-green-700 to-green-950 rounded-3xl p-8 flex items-center justify-between overflow-hidden shadow-xl">
-                <div className="absolute right-0 top-0 bottom-0 w-64 opacity-5">
+              <div className="relative bg-gradient-to-br from-green-700 to-green-950 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center sm:justify-between overflow-hidden shadow-xl gap-6">
+                <div className="absolute right-0 top-0 bottom-0 w-64 opacity-5 pointer-events-none">
                   <svg viewBox="0 0 200 200" className="w-full h-full"><circle cx="150" cy="50" r="120" fill="white"/><circle cx="80" cy="160" r="80" fill="white"/></svg>
                 </div>
                 <div className="relative z-10">
                   <div className="text-xs font-bold text-green-300 uppercase tracking-widest mb-3 flex items-center gap-2">
-                    <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                    <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse flex-shrink-0"></span>
                     Meu Rastro — Abril/2026
                   </div>
                   <div className="flex items-baseline gap-2 mb-3">
-                    <span className="text-6xl font-black text-white leading-none" style={{fontFamily:"'Syne',sans-serif"}}>45</span>
-                    <span className="text-2xl font-bold text-green-300">kg CO₂</span>
+                    <span className="text-5xl sm:text-6xl font-black text-white leading-none" style={{fontFamily:"'Syne',sans-serif"}}>45</span>
+                    <span className="text-xl sm:text-2xl font-bold text-green-300">kg CO₂</span>
                   </div>
-                  <p className="text-white/65 text-sm max-w-xs leading-relaxed">de CO₂ evitados usando sua Tag Edenred nas passagens de pedágio e postos este mês.</p>
+                  <p className="text-white/65 text-sm max-w-sm leading-relaxed">de CO₂ evitados usando sua Taggy Edenred nas passagens de pedágio e postos este mês.</p>
                 </div>
-                <div className="relative z-10 opacity-70 flex-shrink-0">
-                  <Leaf size={120} className="text-white" />
+                <div className="relative z-10 opacity-20 sm:opacity-70 flex-shrink-0 self-end sm:self-auto hidden xs:block">
+                  <Leaf className="text-white w-20 h-20 sm:w-[120px] sm:h-[120px]" />
                 </div>
               </div>
 
-              {/* Métricas */}
-              <div className="grid grid-cols-3 gap-4">
+              {/* Métricas: grid-cols-1 no mobile, vira 3 colunas a partir do 'md' */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Card 1 */}
                 <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
                   <div className="w-11 h-11 bg-green-50 rounded-xl flex items-center justify-center mb-3">
                     <Fuel size={24} className="text-green-600" />
@@ -86,6 +88,7 @@ export default function HubB2C() {
                     <Progress value={72}/>
                   </div>
                 </div>
+                {/* Card 2 */}
                 <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
                   <div className="w-11 h-11 bg-blue-50 rounded-xl flex items-center justify-center mb-3">
                     <MapPin size={24} className="text-blue-600" />
@@ -97,6 +100,7 @@ export default function HubB2C() {
                     <Progress value={85}/>
                   </div>
                 </div>
+                {/* Card 3 */}
                 <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
                   <div className="w-11 h-11 bg-amber-50 rounded-xl flex items-center justify-center mb-3">
                     <Star size={24} className="text-amber-600" />
@@ -112,7 +116,7 @@ export default function HubB2C() {
 
               {/* Info GHG */}
               <div className="bg-green-50 border border-green-200 border-l-4 border-l-green-500 rounded-2xl p-4 flex items-start gap-3">
-                <span className="mt-0.5">
+                <span className="mt-0.5 flex-shrink-0">
                   <BadgeCheck size={24} className="text-green-600" />
                 </span>
                 <div>
@@ -131,26 +135,26 @@ export default function HubB2C() {
                 <h2 className="text-2xl font-black text-gray-900" style={{fontFamily:"'Syne',sans-serif"}}>Suas passagens e economias</h2>
               </div>
               <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
-                <div className="px-5 py-4 border-b border-gray-100 font-bold text-gray-800 text-sm flex items-center gap-2">
-                  Abril 2026 — <span className="text-gray-500 font-normal">34 passagens registradas</span>
+                <div className="px-4 sm:px-5 py-4 border-b border-gray-100 font-bold text-gray-800 text-sm flex flex-wrap items-center gap-1">
+                  <span>Abril 2026 —</span> <span className="text-gray-500 font-normal">34 passagens registradas</span>
                 </div>
                 {[
-                  {icon:<MapPin size={18} className="text-green-600" />, title:"Pedágio — SP-280 KM 32",           date:"24 abr · 08:42", co2:"−1,8 kg"},
+                  {icon:<MapPin size={18} className="text-green-600" />, title:"Pedágio — SP-280 KM 32",      date:"24 abr · 08:42", co2:"−1,8 kg"},
                   {icon:<Fuel size={18} className="text-green-600" />,   title:"Posto Shell — Marginal Pinheiros", date:"23 abr · 17:15", co2:"−2,4 kg"},
                   {icon:<Car size={18} className="text-green-600" />,    title:"Estacionamento — Shopping Ibirapuera",date:"22 abr · 14:03", co2:"−0,9 kg"},
                   {icon:<MapPin size={18} className="text-green-600" />, title:"Pedágio — Castelo Branco KM 18",   date:"21 abr · 06:58", co2:"−1,5 kg"},
                   {icon:<Fuel size={18} className="text-green-600" />,   title:"Posto BR Mania — Av. Paulista",    date:"20 abr · 11:22", co2:"−3,1 kg"},
                   {icon:<MapPin size={18} className="text-green-600" />, title:"Pedágio — Anhanguera KM 54",       date:"18 abr · 07:30", co2:"−2,2 kg"},
                 ].map((row,i) => (
-                  <div key={i} className="flex items-center justify-between px-5 py-3.5 border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 bg-green-50 rounded-full flex items-center justify-center text-base">{row.icon}</div>
-                      <div>
-                        <div className="font-semibold text-sm text-gray-800">{row.title}</div>
+                  <div key={i} className="flex items-center justify-between px-4 sm:px-5 py-3.5 border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-9 h-9 bg-green-50 rounded-full flex items-center justify-center text-base flex-shrink-0">{row.icon}</div>
+                      <div className="min-w-0">
+                        <div className="font-semibold text-sm text-gray-800 truncate">{row.title}</div>
                         <div className="text-xs text-gray-400">{row.date}</div>
                       </div>
                     </div>
-                    <div className="font-bold text-sm text-green-600">{row.co2} CO₂</div>
+                    <div className="font-bold text-sm text-green-600 whitespace-nowrap flex-shrink-0">{row.co2} CO₂</div>
                   </div>
                 ))}
               </div>

@@ -3,15 +3,17 @@ import { useNavigate } from "react-router-dom";
 import { Leaf, User, Building2, Calculator } from "lucide-react";
 
 export function Logo({ size = "md", onClick }) {
-  const sizes = { sm: "text-base", md: "text-xl", lg: "text-3xl" };
-  const iconSizes = { sm: "w-7 h-7 text-sm", md: "w-9 h-9 text-lg", lg: "w-14 h-14 text-2xl" };
+  // Ajustado o tamanho 'md' para ser text-base no mobile e text-xl no desktop, evitando esmagar a Nav
+  const sizes = { sm: "text-xs sm:text-base", md: "text-base sm:text-xl", lg: "text-2xl sm:text-3xl" };
+  const iconSizes = { sm: "w-6 h-6 sm:w-7 sm:h-7 text-xs sm:text-sm", md: "w-8 h-8 sm:w-9 sm:h-9 text-xs sm:text-lg", lg: "w-12 h-12 sm:w-14 sm:h-14 text-xl sm:text-2xl" };
+  
   return (
-    <button onClick={onClick} className="flex items-center gap-2.5 focus:outline-none">
+    <button onClick={onClick} className="flex items-center gap-2 focus:outline-none flex-shrink-0 text-left">
       <div className={`${iconSizes[size]} rounded-xl bg-gradient-to-br from-green-400 to-green-700 flex items-center justify-center shadow-lg shadow-green-200 flex-shrink-0`}>
-        <Leaf className="text-white" size={size === "sm" ? 16 : size === "md" ? 20 : 32} />
+        <Leaf className="text-white" size={size === "sm" ? 14 : size === "md" ? 18 : 28} />
       </div>
-      <span className={`${sizes[size]} font-black tracking-tight`} style={{ fontFamily: "'Syne',sans-serif" }}>
-        Edenred <span className="text-green-600">TaggyGreen</span>
+      <span className={`${sizes[size]} font-black tracking-tight leading-tight text-gray-900`} style={{ fontFamily: "'Syne',sans-serif" }}>
+        Edenred <span className="text-green-600 block xs:inline">TaggyGreen</span>
       </span>
     </button>
   );
@@ -22,29 +24,50 @@ export function Nav({ activePage, showB2bB2c = true }) {
 
   return (
     <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-100 shadow-sm">
-      <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
+      {/* Container principal flexível com h-auto e py-3 no mobile */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-auto py-3 sm:h-16 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
+        
+        {/* LOGO */}
         <Logo size="md" onClick={() => navigate("/")} />
 
+        {/* ÁREA DE PORTAIS RESPONSIVA */}
         {showB2bB2c && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto overflow-x-auto whitespace-nowrap scrollbar-none justify-center sm:justify-end py-1">
+            
+            {/* PORTAL B2C */}
             <button
               onClick={() => navigate("/b2c/hub")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-150 ${activePage === "b2c" ? "bg-green-500 text-white shadow-md shadow-green-200" : "text-gray-600 hover:bg-gray-100"}`}
+              className={`flex items-center gap-1.5 px-3 py-2 sm:px-4 rounded-full text-xs sm:text-sm font-semibold transition-all duration-150 flex-shrink-0 ${
+                activePage === "b2c" 
+                  ? "bg-green-500 text-white shadow-md shadow-green-200" 
+                  : "text-gray-600 hover:bg-gray-100"
+              }`}
             >
-              <User size={16} /> Portal B2C
+              <User size={14} /> Portal B2C
             </button>
+            
+            {/* GESTÃO B2B */}
             <button
               onClick={() => navigate("/b2b/dashboard")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-150 ${activePage === "b2b" ? "bg-green-500 text-white shadow-md shadow-green-200" : "text-gray-600 hover:bg-gray-100"}`}
+              className={`flex items-center gap-1.5 px-3 py-2 sm:px-4 rounded-full text-xs sm:text-sm font-semibold transition-all duration-150 flex-shrink-0 ${
+                activePage === "b2b" 
+                  ? "bg-green-500 text-white shadow-md shadow-green-200" 
+                  : "text-gray-600 hover:bg-gray-100"
+              }`}
             >
-              <Building2 size={16} /> Gestão B2B
+              <Building2 size={14} /> Gestão B2B
             </button>
-            <button
-              onClick={() => navigate("/b2b/simulador")}
-              className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border-2 border-green-500 text-green-700 hover:bg-green-50 transition-all duration-150"
-            >
-              <Calculator size={16} /> Simulador
-            </button>
+            
+            {/* SIMULADOR: Sumirá completamente da árvore se a página ativa for 'b2b' */}
+            {activePage !== "b2b" && (
+              <button
+                onClick={() => navigate("/b2b/simulador")}
+                className="flex items-center gap-1.5 px-3 py-2 sm:px-4 rounded-full text-xs sm:text-sm font-semibold border border-green-500 text-green-700 hover:bg-green-50 transition-all duration-150 flex-shrink-0"
+              >
+                <Calculator size={14} /> Simulador
+              </button>
+            )}
+            
           </div>
         )}
       </div>
@@ -78,9 +101,9 @@ export function MetricCard({ icon, label, value, unit, change, changeDir = "up",
     <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm hover:shadow-md transition-shadow">
       <div className={`w-11 h-11 ${bg} rounded-xl flex items-center justify-center text-xl mb-3`}>{icon}</div>
       <div className="text-xs text-gray-500 font-semibold mb-1">{label}</div>
-      <div className="flex items-baseline gap-1">
-        <span className="text-3xl font-black text-gray-900" style={{ fontFamily: "'Syne',sans-serif" }}>{value}</span>
-        {unit && <span className="text-base text-gray-400 font-semibold">{unit}</span>}
+      <div className="flex items-baseline flex-wrap gap-1">
+        <span className="text-3xl font-black text-gray-900 tracking-tight" style={{ fontFamily: "'Syne',sans-serif" }}>{value}</span>
+        {unit && <span className="text-sm text-gray-400 font-semibold whitespace-nowrap">{unit}</span>}
       </div>
       {change && (
         <div className={`mt-2 text-xs font-semibold flex items-center gap-1 ${changeDir === "up" ? "text-green-600" : "text-red-500"}`}>

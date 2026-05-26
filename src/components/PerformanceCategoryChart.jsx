@@ -26,6 +26,14 @@ export function PerformanceCategoryChart({ data }) {
     (current["CO₂ Evitado (kg)"] > chartData[maxIdx]["CO₂ Evitado (kg)"]) ? idx : maxIdx
   , 0);
 
+  // Função para encurtar legendas longas para caberem 100% horizontais no gráfico
+  const formatXAxis = (tickItem) => {
+    if (tickItem.includes("Carros")) return "Carros";
+    if (tickItem.includes("Caminhões")) return "Caminhões";
+    if (tickItem.includes("Vans")) return "Vans";
+    return tickItem;
+  };
+
   return (
     <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
       <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
@@ -35,17 +43,20 @@ export function PerformanceCategoryChart({ data }) {
       <div className="p-5">
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+            {/* Ajustado bottom margin para acomodar as legendas retas sem desperdiçar espaço */}
+            <BarChart data={chartData} margin={{ top: 20, right: 30, left: 10, bottom: 20 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis 
                 dataKey="name" 
-                angle={-45} 
-                textAnchor="end" 
-                height={100}
+                angle={0} // Ajustado para 0 (completamente horizontal)
+                textAnchor="middle" // Ajustado para centralizar abaixo da barra
+                height={40}
+                tickFormatter={formatXAxis} // Aplica os nomes encurtados
                 tick={{ fontSize: 12, fill: '#666' }}
+                dy={10} // Dá um leve espaçamento vertical entre a linha do eixo e o texto
               />
               <YAxis 
-                label={{ value: 'CO₂ Evitado (kg)', angle: -90, position: 'insideLeft' }}
+                label={{ value: 'CO₂ Evitado (kg)', angle: -90, position: 'insideLeft', offset: 0 }}
                 tick={{ fontSize: 12, fill: '#666' }}
               />
               <Tooltip 
@@ -56,7 +67,7 @@ export function PerformanceCategoryChart({ data }) {
                 }}
                 formatter={(value) => value.toLocaleString('pt-BR')}
               />
-              <Legend wrapperStyle={{ paddingTop: '20px' }} />
+              <Legend wrapperStyle={{ paddingTop: '10px' }} />
               <Bar dataKey="CO₂ Evitado (kg)" fill="#10b981" radius={[8, 8, 0, 0]}>
                 {chartData.map((entry, index) => (
                   <Cell 
@@ -69,7 +80,7 @@ export function PerformanceCategoryChart({ data }) {
           </ResponsiveContainer>
         </div>
         
-        {/* Legenda explicativa */}
+        {/* Legenda explicativa mantém o nome original/completo intacto */}
         <div className="mt-5 p-4 bg-gradient-to-r from-red-50 to-orange-50 border border-red-100 rounded-xl">
           <div className="text-xs font-bold text-red-800 mb-2">Categoria Mais Poluidora (Curada pela Plataforma)</div>
           <div className="text-sm text-red-700">

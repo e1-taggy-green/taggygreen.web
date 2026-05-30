@@ -1,27 +1,100 @@
-﻿import { useState } from "react";
-import { Nav, Footer, MetricCard } from "../../../components/shared";
-import { Calculator, Car, LineChart, CheckCircle, Fuel, Clock, Coins, Activity, User, Mail, Phone, MapPin, Truck, AlertTriangle } from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Nav, Footer } from "../../../components/shared";
+import {
+  Calculator, Car, Fuel, Clock, Coins, Activity,
+  User, Mail, Phone, MapPin, Truck, AlertTriangle, Leaf,
+} from "lucide-react";
 import { b2bService } from "../../../services/b2bService";
 
+// ─── TELA DE RESULTADO ────────────────────────────────────────────────────────
+function ResultadoSimulacao({ resultados, onRefazer }) {
+  const navigate = useNavigate();
+
+  const cards = [
+    { icon: <Activity size={28} className="text-green-600" />, label: "Emissões de CO₂ evitadas", value: resultados.economiaCo2.toLocaleString("pt-BR", { maximumFractionDigits: 1 }), unit: "kg", bg: "bg-green-50" },
+    { icon: <Fuel     size={28} className="text-blue-500"  />, label: "Combustível economizado",  value: resultados.combustivelPoupado.toLocaleString("pt-BR", { maximumFractionDigits: 1 }), unit: "L",  bg: "bg-blue-50"  },
+    { icon: <Clock    size={28} className="text-purple-500"/>, label: "Tempo poupado em filas",   value: resultados.tempoOtimizado.toLocaleString("pt-BR"), unit: "h",  bg: "bg-purple-50"},
+    { icon: <Coins    size={28} className="text-amber-500" />, label: "Economia financeira total", value: `R$ ${resultados.economiaEstimada.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}`, unit: "", bg: "bg-amber-50" },
+  ];
+
+  return (
+    <div className="min-h-screen bg-white flex flex-col">
+      <Nav activePage="simulador" />
+
+      <div className="flex-1 bg-gray-50 flex items-center justify-center px-6 py-16">
+        <div className="max-w-2xl w-full text-center space-y-8">
+          {/* Ícone */}
+          <div className="flex justify-center">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+              <Leaf size={32} className="text-green-600" />
+            </div>
+          </div>
+
+          {/* Título */}
+          <div>
+            <h1 className="text-3xl font-black text-gray-900 mb-2" style={{ fontFamily: "'Syne',sans-serif" }}>
+              Seu Impacto Verde Estimado
+            </h1>
+            <p className="text-sm text-gray-500">
+              Com a Tag Edenred, sua frota pode alcançar a seguinte economia anual:
+            </p>
+          </div>
+
+          {/* Cards de resultado */}
+          <div className="grid grid-cols-2 gap-4 text-left">
+            {cards.map((card, i) => (
+              <div key={i} className={`${card.bg} rounded-2xl p-5 flex items-start gap-4`}>
+                <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
+                  {card.icon}
+                </div>
+                <div>
+                  <div className="text-xs text-gray-500 font-semibold mb-1">{card.label}</div>
+                  <div className="text-2xl font-black text-gray-900" style={{ fontFamily: "'Syne',sans-serif" }}>
+                    {card.value} <span className="text-base font-semibold text-gray-400">{card.unit}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Botões */}
+          <div className="flex items-center justify-center gap-4 pt-2">
+            <button
+              onClick={onRefazer}
+              className="px-6 py-3 rounded-xl border border-gray-300 text-sm font-semibold text-gray-700 hover:bg-gray-100 transition-all"
+            >
+              Refazer Simulação
+            </button>
+            <button
+              onClick={() => navigate("/")}
+              className="px-6 py-3 rounded-xl bg-green-500 text-white text-sm font-bold hover:bg-green-600 transition-all shadow-md shadow-green-100 flex items-center gap-2"
+            >
+              <Leaf size={16} /> Ir para Home
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <Footer />
+    </div>
+  );
+}
+
+// ─── FORMULÁRIO ───────────────────────────────────────────────────────────────
 export default function SimuladorPage() {
   const [formData, setFormData] = useState({
-    nome: "",
-    email: "",
-    telefone: "",
-    endereco: "",
-    qtdCarros: "",
-    qtdCaminhoes: "",
-    pedagiosCarro: "",
-    pedagiosCaminhao: "",
-    estacCarro: "",
-    estacCaminhao: ""
+    nome: "", email: "", telefone: "", endereco: "",
+    qtdCarros: "", qtdCaminhoes: "",
+    pedagiosCarro: "", pedagiosCaminhao: "",
+    estacCarro: "", estacCaminhao: "",
   });
   const [resultados, setResultados] = useState(null);
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState(null);
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSimular = async (e) => {
@@ -40,7 +113,7 @@ export default function SimuladorPage() {
           nome: formData.nome,
           email: formData.email,
           telefone: formData.telefone || null,
-          endereco: formData.endereco || null
+          endereco: formData.endereco || null,
         },
         frota: {
           qtd_carros: Number(formData.qtdCarros) || 0,
@@ -48,28 +121,27 @@ export default function SimuladorPage() {
           eventos_pedagio_carros: Number(formData.pedagiosCarro) || 0,
           eventos_estacionamento_carros: Number(formData.estacCarro) || 0,
           eventos_pedagio_caminhoes: Number(formData.pedagiosCaminhao) || 0,
-          eventos_estacionamento_caminhoes: Number(formData.estacCaminhao) || 0
-        }
+          eventos_estacionamento_caminhoes: Number(formData.estacCaminhao) || 0,
+        },
       };
 
-      // Fallback para evitar erro de validação (A API exige no mínimo 1 veículo no total)
       if (payload.frota.qtd_carros === 0 && payload.frota.qtd_caminhoes === 0) {
         setErro("A frota deve conter pelo menos 1 veículo (carro ou caminhão).");
         setLoading(false);
         return;
       }
-      
+
       const { data } = await b2bService.postSimulacao(payload);
-      
+
       setResultados({
         combustivelPoupado: data.economia_gasolina_litros,
-        tempoOtimizado: Math.round(data.economia_tempo_minutos / 60), // Convertendo para horas
+        tempoOtimizado: Math.round(data.economia_tempo_minutos / 60),
         economiaEstimada: data.dinheiro_economizado,
-        economiaCo2: data.economia_co2_kg
+        economiaCo2: data.economia_co2_kg,
       });
     } catch (error) {
-      console.error("Erro ao simular mitigação:", error);
-      if (error.response && error.response.status === 422) {
+      console.error("Erro ao simular:", error);
+      if (error.response?.status === 422) {
         setErro("Verifique os campos preenchidos. O e-mail deve ter um formato válido.");
       } else {
         setErro("Ocorreu um erro ao conectar com o servidor. Tente novamente.");
@@ -78,6 +150,16 @@ export default function SimuladorPage() {
       setLoading(false);
     }
   };
+
+  // Mostra tela de resultado quando há dados
+  if (resultados) {
+    return (
+      <ResultadoSimulacao
+        resultados={resultados}
+        onRefazer={() => setResultados(null)}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -109,157 +191,63 @@ export default function SimuladorPage() {
 
       <div className="flex-1 bg-gray-50 px-6 py-8">
         <div className="max-w-4xl mx-auto space-y-6">
-          {/* FORMULÁRIO */}
           <form onSubmit={handleSimular} className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-            
-            {/* DADOS DO CONTATO */}
+
+            {/* Dados do Contato */}
             <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
-              <span>
-                <User size={20} className="text-gray-900" />
-              </span>
-              <h3 className="font-black text-gray-900" style={{ fontFamily: "'Syne',sans-serif" }}>
-                Dados do Contato
-              </h3>
+              <User size={20} className="text-gray-900" />
+              <h3 className="font-black text-gray-900" style={{ fontFamily: "'Syne',sans-serif" }}>Dados do Contato</h3>
             </div>
             <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 border-b border-gray-100">
-              <div>
-                <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 mb-2" style={{ fontFamily: "'Syne',sans-serif" }}>
-                  <User size={16} className="text-gray-400" /> Nome Completo
-                </label>
-                <input
-                  type="text"
-                  value={formData.nome || ""}
-                  onChange={(e) => handleInputChange('nome', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-green-500 bg-white relative z-10"
-                  placeholder="Ex: João Silva"
-                />
-              </div>
-              <div>
-                <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 mb-2" style={{ fontFamily: "'Syne',sans-serif" }}>
-                  <Mail size={16} className="text-gray-400" /> E-mail
-                </label>
-                <input
-                  type="email"
-                  value={formData.email || ""}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-green-500 bg-white relative z-10"
-                  placeholder="Ex: joao@empresa.com"
-                />
-              </div>
-              <div>
-                <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 mb-2" style={{ fontFamily: "'Syne',sans-serif" }}>
-                  <Phone size={16} className="text-gray-400" /> Telefone
-                </label>
-                <input
-                  type="text"
-                  value={formData.telefone || ""}
-                  onChange={(e) => handleInputChange('telefone', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-green-500 bg-white relative z-10"
-                  placeholder="Ex: (11) 99999-9999"
-                />
-              </div>
-              <div>
-                <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 mb-2" style={{ fontFamily: "'Syne',sans-serif" }}>
-                  <MapPin size={16} className="text-gray-400" /> Endereço / Empresa
-                </label>
-                <input
-                  type="text"
-                  value={formData.endereco || ""}
-                  onChange={(e) => handleInputChange('endereco', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-green-500 bg-white relative z-10"
-                  placeholder="Ex: Av. Paulista, 1000"
-                />
-              </div>
+              {[
+                { field: "nome",     label: "Nome Completo",     icon: <User  size={16} className="text-gray-400" />, placeholder: "Ex: João Silva",          type: "text"  },
+                { field: "email",    label: "E-mail",            icon: <Mail  size={16} className="text-gray-400" />, placeholder: "Ex: joao@empresa.com",    type: "email" },
+                { field: "telefone", label: "Telefone",          icon: <Phone size={16} className="text-gray-400" />, placeholder: "Ex: (11) 99999-9999",     type: "text"  },
+                { field: "endereco", label: "Endereço / Empresa", icon: <MapPin size={16} className="text-gray-400" />, placeholder: "Ex: Av. Paulista, 1000", type: "text"  },
+              ].map(({ field, label, icon, placeholder, type }) => (
+                <div key={field}>
+                  <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 mb-2">
+                    {icon} {label}
+                  </label>
+                  <input
+                    type={type}
+                    value={formData[field]}
+                    onChange={(e) => handleInputChange(field, e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-green-500 bg-white"
+                    placeholder={placeholder}
+                  />
+                </div>
+              ))}
             </div>
 
-            {/* DADOS DA FROTA */}
+            {/* Dados da Frota */}
             <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
-              <span>
-                <Car size={20} className="text-gray-900" />
-              </span>
-              <h3 className="font-black text-gray-900" style={{ fontFamily: "'Syne',sans-serif" }}>
-                Dados da Frota
-              </h3>
+              <Car size={20} className="text-gray-900" />
+              <h3 className="font-black text-gray-900" style={{ fontFamily: "'Syne',sans-serif" }}>Dados da Frota</h3>
             </div>
             <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 mb-2" style={{ fontFamily: "'Syne',sans-serif" }}>
-                  <Car size={16} className="text-gray-400" /> Quantidade de Carros
-                </label>
-                <input
-                  type="number"
-                  value={formData.qtdCarros || ""}
-                  onChange={(e) => handleInputChange('qtdCarros', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-green-500 bg-white relative z-10"
-                  placeholder="Ex: 10"
-                  min="0"
-                />
-              </div>
-              <div>
-                <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 mb-2" style={{ fontFamily: "'Syne',sans-serif" }}>
-                  <Truck size={16} className="text-gray-400" /> Quantidade de Caminhões
-                </label>
-                <input
-                  type="number"
-                  value={formData.qtdCaminhoes || ""}
-                  onChange={(e) => handleInputChange('qtdCaminhoes', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-green-500 bg-white relative z-10"
-                  placeholder="Ex: 5"
-                  min="0"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2" style={{ fontFamily: "'Syne',sans-serif" }}>
-                  Passagens de Pedágio (Carros) / mês
-                </label>
-                <input
-                  type="number"
-                  value={formData.pedagiosCarro || ""}
-                  onChange={(e) => handleInputChange('pedagiosCarro', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-green-500 bg-white relative z-10"
-                  placeholder="Ex: 40"
-                  min="0"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2" style={{ fontFamily: "'Syne',sans-serif" }}>
-                  Passagens de Pedágio (Caminhões) / mês
-                </label>
-                <input
-                  type="number"
-                  value={formData.pedagiosCaminhao || ""}
-                  onChange={(e) => handleInputChange('pedagiosCaminhao', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-green-500 bg-white relative z-10"
-                  placeholder="Ex: 20"
-                  min="0"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2" style={{ fontFamily: "'Syne',sans-serif" }}>
-                  Estacionamentos (Carros) / mês
-                </label>
-                <input
-                  type="number"
-                  value={formData.estacCarro || ""}
-                  onChange={(e) => handleInputChange('estacCarro', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-green-500 bg-white relative z-10"
-                  placeholder="Ex: 10"
-                  min="0"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2" style={{ fontFamily: "'Syne',sans-serif" }}>
-                  Estacionamentos (Caminhões) / mês
-                </label>
-                <input
-                  type="number"
-                  value={formData.estacCaminhao || ""}
-                  onChange={(e) => handleInputChange('estacCaminhao', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-green-500 bg-white relative z-10"
-                  placeholder="Ex: 5"
-                  min="0"
-                />
-              </div>
+              {[
+                { field: "qtdCarros",        label: "Quantidade de Carros",               icon: <Car   size={16} className="text-gray-400" />, placeholder: "Ex: 10" },
+                { field: "qtdCaminhoes",     label: "Quantidade de Caminhões",             icon: <Truck size={16} className="text-gray-400" />, placeholder: "Ex: 5"  },
+                { field: "pedagiosCarro",    label: "Passagens de Pedágio (Carros) / mês",    icon: null, placeholder: "Ex: 40" },
+                { field: "pedagiosCaminhao", label: "Passagens de Pedágio (Caminhões) / mês", icon: null, placeholder: "Ex: 20" },
+                { field: "estacCarro",       label: "Estacionamentos (Carros) / mês",         icon: null, placeholder: "Ex: 10" },
+                { field: "estacCaminhao",    label: "Estacionamentos (Caminhões) / mês",      icon: null, placeholder: "Ex: 5"  },
+              ].map(({ field, label, icon, placeholder }) => (
+                <div key={field}>
+                  <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 mb-2">
+                    {icon} {label}
+                  </label>
+                  <input
+                    type="number"
+                    value={formData[field]}
+                    onChange={(e) => handleInputChange(field, e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-green-500 bg-white"
+                    placeholder={placeholder}
+                    min="0"
+                  />
+                </div>
+              ))}
             </div>
 
             {erro && (
@@ -269,52 +257,15 @@ export default function SimuladorPage() {
             )}
 
             <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end">
-              <button 
+              <button
                 type="submit"
                 disabled={loading}
                 className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-xl transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2"
               >
-                {loading ? 'Calculando impacto...' : 'Simular Economia'}
+                {loading ? "Calculando impacto..." : "Simular Economia"}
               </button>
             </div>
           </form>
-
-          {/* RESULTADOS */}
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
-              <span>
-                <LineChart size={20} className="text-gray-900" />
-              </span>
-              <h3 className="font-black text-gray-900" style={{ fontFamily: "'Syne',sans-serif" }}>
-                Simulação
-              </h3>
-            </div>
-            <div className="p-6">
-              {resultados ? (
-                <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                    <MetricCard icon={<Fuel size={20} />} label="Combustível Poupado" value={resultados.combustivelPoupado.toLocaleString(undefined, {maximumFractionDigits: 1})} unit="L" bg="bg-blue-50" />
-                    <MetricCard icon={<Clock size={20} />} label="Tempo Otimizado" value={resultados.tempoOtimizado.toLocaleString()} unit="hrs" bg="bg-amber-50" />
-                    <MetricCard icon={<Coins size={20} />} label="Economia Estimada" value={`R$ ${resultados.economiaEstimada.toLocaleString(undefined, {maximumFractionDigits: 2})}`} bg="bg-green-50" />
-                    <MetricCard icon={<Activity size={20} />} label="CO₂ Evitado" value={resultados.economiaCo2.toLocaleString(undefined, {maximumFractionDigits: 1})} unit="kg" bg="bg-purple-50" />
-                  </div>
-
-                  <div className="bg-green-50 border border-green-200 border-l-4 border-l-green-500 rounded-2xl p-4 flex items-start gap-3">
-                    <span className="mt-0.5 flex-shrink-0">
-                      <CheckCircle size={24} className="text-green-600" />
-                    </span>
-                    <div>
-                      <div className="font-bold text-green-800 text-sm mb-1">Simulação Concluída</div>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <div className="text-center py-10 text-gray-500 font-medium">
-                  Preencha os dados da frota e clique em "Simular Economia" para ver o cálculo de mitigação.
-                </div>
-              )}
-            </div>
-          </div>
         </div>
       </div>
 

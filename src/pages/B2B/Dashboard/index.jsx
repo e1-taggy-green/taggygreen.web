@@ -3,7 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { Nav, Footer, MetricCard } from "../../../components/shared";
 import { usePerformanceData } from "../../../hooks/usePerformanceData";
 import { PerformanceCategoryChart } from "../../../components/PerformanceCategoryChart";
+import { PerformanceDataGrid } from "../../../components/PerformanceDataGrid";
 import { useExportReport } from "../../../hooks/useExportReport";
+import { useSpinner } from "../../../contexts/SpinnerContext";
 import {
   LayoutDashboard,
   Calculator,
@@ -52,20 +54,20 @@ class DashboardErrorBoundary extends React.Component {
 function DashboardB2BContent() {
   const navigate = useNavigate();
   const [tab, setTab] = useState("esg");
-  const [periodo, setPeriodo] = useState("Abril/2026");
-  const { categoryPerformance, loading: perfLoading } = usePerformanceData();
+  const { categoryPerformance, rankingData, loading: perfLoading } = usePerformanceData();
   const [esgSummary, setEsgSummary] = useState(null);
-  const { exportPDF, exportCSV, loading: exportLoading } = useExportReport();
+  const { showSpinner, hideSpinner } = useSpinner();
+  const { exportPDF, exportCSV, loading: exportLoading } = useExportReport({ showSpinner, hideSpinner });
 
   useEffect(() => {
-    const email = "contato@empresa.com";
+    const email = "teste.b2b@taggy.com";
     if (tab === "esg") {
       b2bService
         .getRelatorioESG(email)
         .then((res) => setEsgSummary(res.data))
         .catch(console.error);
     }
-  }, [tab, periodo]);
+  }, [tab]);
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -73,14 +75,14 @@ function DashboardB2BContent() {
 
       {/* HEADER */}
       <div className="bg-white border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-6 pt-6 pb-0">
-          <div className="flex items-start justify-between mb-5 flex-wrap gap-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-4 sm:pt-6 pb-0">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 sm:mb-5 gap-3 sm:gap-4">
             <div>
               <span className="inline-flex items-center gap-1.5 text-xs font-bold bg-blue-100 text-blue-700 rounded-full px-3 py-1 mb-2 uppercase tracking-wide">
                 <LayoutDashboard size={14} /> Painel Corporativo
               </span>
               <h1
-                className="text-2xl font-black text-gray-900"
+                className="text-xl sm:text-2xl font-black text-gray-900"
                 style={{ fontFamily: "'Syne',sans-serif" }}
               >
                 Gestão de Frotas e ESG
@@ -90,7 +92,7 @@ function DashboardB2BContent() {
                 simule o impacto sustentável.
               </p>
             </div>
-            <div className="flex gap-2 flex-wrap">
+            <div className="flex gap-2 flex-wrap w-full sm:w-auto">
               {/* Exportar CSV — Front-end nativo */}
               <button
                 onClick={exportCSV}
@@ -115,7 +117,7 @@ function DashboardB2BContent() {
               </button>
             </div>
           </div>
-          <div className="flex gap-0">
+          <div className="flex gap-0 overflow-x-auto scrollbar-hide">
             {[
               { id: "esg", label: "Relatório ESG", icon: FileText },
               { id: "performance", label: "Performance", icon: Activity },
@@ -146,36 +148,17 @@ function DashboardB2BContent() {
           {/* ESG TAB */}
           {tab === "esg" && (
             <div className="space-y-5">
-              <div className="flex items-center justify-between flex-wrap gap-3">
-                <div>
-                  <div
-                    className="font-black text-xl text-gray-900"
-                    style={{ fontFamily: "'Syne',sans-serif" }}
-                  >
-                    Resumo de Sustentabilidade
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    Impacto sustentável da frota com o uso da Tag Edenred.
-                  </div>
+              <div>
+                <div className="font-black text-xl text-gray-900" style={{ fontFamily: "'Syne',sans-serif" }}>
+                  Resumo de Sustentabilidade
                 </div>
-                <select
-                  value={periodo}
-                  onChange={(e) => setPeriodo(e.target.value)}
-                  className="text-sm border border-gray-200 rounded-xl px-3 py-2 bg-white focus:outline-none focus:border-green-500"
-                >
-                  {[
-                    "Abril/2026",
-                    "Março/2026",
-                    "Fevereiro/2026",
-                    "Janeiro/2026",
-                  ].map((p) => (
-                    <option key={p}>{p}</option>
-                  ))}
-                </select>
+                <div className="text-sm text-gray-500">
+                  Impacto sustentável da frota com o uso da Tag Edenred.
+                </div>
               </div>
 
               {/* 6 metrics from backend */}
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                 <MetricCard
                   icon={<Leaf size={20} />}
                   label="CO₂ Evitado"
@@ -272,9 +255,16 @@ function DashboardB2BContent() {
           {/* PERFORMANCE TAB */}
           {tab === "performance" && (
             <div className="space-y-5">
-              {/* Gráfico de Categorias */}
-              {!perfLoading && (
-                <PerformanceCategoryChart data={categoryPerformance} />
+              {perfLoading ? (
+                <>
+                  <div className="h-80 rounded-2xl animate-pulse bg-gray-100" />
+                  <div className="h-64 rounded-2xl animate-pulse bg-gray-100" />
+                </>
+              ) : (
+                <>
+                  <PerformanceCategoryChart data={categoryPerformance} />
+                  <PerformanceDataGrid data={rankingData} />
+                </>
               )}
             </div>
           )}

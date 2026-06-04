@@ -6,6 +6,8 @@ import {
   User, Mail, Phone, MapPin, Truck, AlertTriangle, Leaf,
 } from "lucide-react";
 import { b2bService } from "../../../services/b2bService";
+import { useSpinner } from "../../../contexts/SpinnerContext";
+import { useToast } from "../../../contexts/ToastContext";
 
 // ─── TELA DE RESULTADO ────────────────────────────────────────────────────────
 function ResultadoSimulacao({ resultados, onRefazer }) {
@@ -22,8 +24,8 @@ function ResultadoSimulacao({ resultados, onRefazer }) {
     <div className="min-h-screen bg-white flex flex-col">
       <Nav activePage="simulador" />
 
-      <div className="flex-1 bg-gray-50 flex items-center justify-center px-6 py-16">
-        <div className="max-w-2xl w-full text-center space-y-8">
+      <div className="flex-1 bg-gray-50 flex items-center justify-center px-4 sm:px-6 py-10 sm:py-16">
+        <div className="max-w-2xl w-full text-center space-y-6 sm:space-y-8">
           {/* Ícone */}
           <div className="flex justify-center">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
@@ -33,7 +35,7 @@ function ResultadoSimulacao({ resultados, onRefazer }) {
 
           {/* Título */}
           <div>
-            <h1 className="text-3xl font-black text-gray-900 mb-2" style={{ fontFamily: "'Syne',sans-serif" }}>
+            <h1 className="text-2xl sm:text-3xl font-black text-gray-900 mb-2" style={{ fontFamily: "'Syne',sans-serif" }}>
               Seu Impacto Verde Estimado
             </h1>
             <p className="text-sm text-gray-500">
@@ -42,15 +44,15 @@ function ResultadoSimulacao({ resultados, onRefazer }) {
           </div>
 
           {/* Cards de resultado */}
-          <div className="grid grid-cols-2 gap-4 text-left">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-left w-full">
             {cards.map((card, i) => (
-              <div key={i} className={`${card.bg} rounded-2xl p-5 flex items-start gap-4`}>
+              <div key={i} className={`${card.bg} rounded-2xl p-4 sm:p-5 flex items-start gap-3 sm:gap-4`}>
                 <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
                   {card.icon}
                 </div>
                 <div>
                   <div className="text-xs text-gray-500 font-semibold mb-1">{card.label}</div>
-                  <div className="text-2xl font-black text-gray-900" style={{ fontFamily: "'Syne',sans-serif" }}>
+                  <div className="text-xl sm:text-2xl font-black text-gray-900 break-all" style={{ fontFamily: "'Syne',sans-serif" }}>
                     {card.value} <span className="text-base font-semibold text-gray-400">{card.unit}</span>
                   </div>
                 </div>
@@ -92,6 +94,8 @@ export default function SimuladorPage() {
   const [resultados, setResultados] = useState(null);
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState(null);
+  const { showSpinner, hideSpinner } = useSpinner();
+  const { addToast } = useToast();
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -107,6 +111,7 @@ export default function SimuladorPage() {
     }
 
     setLoading(true);
+    showSpinner("Calculando impacto sustentável...");
     try {
       const payload = {
         lead: {
@@ -148,6 +153,7 @@ export default function SimuladorPage() {
       }
     } finally {
       setLoading(false);
+      hideSpinner();
     }
   };
 

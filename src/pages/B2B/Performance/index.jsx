@@ -14,14 +14,14 @@ export default function PerformanceAnalysis() {
 
       {/* HEADER */}
       <div className="bg-white border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-6 pt-6 pb-6">
-          <div className="flex items-start justify-between mb-5 flex-wrap gap-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-4 sm:pt-6 pb-4 sm:pb-6">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 sm:mb-5 gap-3 sm:gap-4">
             <div>
               <span className="inline-flex items-center gap-1.5 text-xs font-bold bg-blue-100 text-blue-700 rounded-full px-3 py-1 mb-2 uppercase tracking-wide">
                 Análise de Performance
               </span>
               <h1
-                className="text-2xl font-black text-gray-900"
+                className="text-xl sm:text-2xl font-black text-gray-900"
                 style={{ fontFamily: "'Syne',sans-serif" }}
               >
                 Performance da Frota
@@ -32,7 +32,7 @@ export default function PerformanceAnalysis() {
                 economizado com o uso da Tag Edenred.
               </p>
             </div>
-            <div className="flex gap-2 flex-wrap">
+            <div className="flex gap-2 flex-wrap w-full sm:w-auto">
               <button className="flex items-center gap-1.5 text-xs font-semibold border border-gray-300 rounded-xl px-4 py-2 hover:border-green-500 hover:text-green-700 hover:bg-green-50 transition-all">
                 Exportar CSV
               </button>
@@ -60,8 +60,8 @@ export default function PerformanceAnalysis() {
       </div>
 
       {/* CONTENT */}
-      <div className="flex-1 bg-gray-50 px-6 py-7">
-        <div className="max-w-6xl mx-auto space-y-5">
+      <div className="flex-1 bg-gray-50 px-4 sm:px-6 py-5 sm:py-7">
+        <div className="max-w-6xl mx-auto space-y-4 sm:space-y-5">
 
           {loading ? (
             <>

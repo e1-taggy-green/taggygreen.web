@@ -56,7 +56,7 @@ export function PerformanceDataGrid({ data }) {
       </div>
 
       {/* Header das colunas */}
-      <div className="grid grid-cols-12 gap-2 px-6 py-2.5 border-t border-b border-gray-100 bg-gray-50">
+      <div className="hidden sm:grid grid-cols-12 gap-2 px-6 py-2.5 border-t border-b border-gray-100 bg-gray-50">
         <div className="col-span-5 text-xs font-semibold text-gray-400 uppercase tracking-wide">
           Placa / Motorista
         </div>
@@ -71,11 +71,11 @@ export function PerformanceDataGrid({ data }) {
       {/* Linhas */}
       <div className="divide-y divide-gray-50">
         {data.map((vehicle, idx) => {
-          const rank = vehicle.rank || idx + 1;
+          const rank = vehicle.posicao ?? vehicle.rank ?? idx + 1;
           const passagens =
-            vehicle.pedagios ?? vehicle.passagens ?? vehicle.transacoes ?? 0;
+            vehicle.transacoes ?? vehicle.pedagios ?? vehicle.passagens ?? 0;
           const co2 =
-            vehicle.co2_mitigado ?? vehicle.co2_evitado_kg ?? vehicle.co2 ?? 0;
+            vehicle.co2_evitado_kg ?? vehicle.co2_mitigado ?? vehicle.co2 ?? 0;
           const placa = vehicle.placa || "—";
           const motorista = vehicle.motorista || vehicle.modelo || "";
           const isFirst = rank === 1;
@@ -83,10 +83,10 @@ export function PerformanceDataGrid({ data }) {
           return (
             <div
               key={placa + idx}
-              className="grid grid-cols-12 gap-2 px-6 py-3.5 items-center hover:bg-gray-50 transition-colors"
+              className="flex flex-col sm:grid sm:grid-cols-12 gap-2 sm:gap-2 px-4 sm:px-6 py-3 sm:py-3.5 hover:bg-gray-50 transition-colors"
             >
               {/* Ícone + Placa + Motorista */}
-              <div className="col-span-5 flex items-center gap-3">
+              <div className="col-span-5 flex items-center gap-3 w-full sm:w-auto">
                 <div
                   className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${
                     isFirst ? "bg-amber-50" : "bg-gray-100"
@@ -105,14 +105,15 @@ export function PerformanceDataGrid({ data }) {
               </div>
 
               {/* Passagens */}
-              <div className="col-span-4 text-center">
+              <div className="col-span-4 sm:text-center flex sm:block items-center gap-2">
+                <span className="text-xs text-gray-400 sm:hidden">Passagens:</span>
                 <span className="text-sm font-semibold text-gray-700">
                   {passagens.toLocaleString("pt-BR")}
                 </span>
               </div>
 
               {/* Emissões */}
-              <div className="col-span-3 text-right">
+              <div className="col-span-3 sm:text-right flex sm:block items-center gap-2">
                 {isFirst ? (
                   <span className="inline-block text-xs font-bold text-green-700 bg-green-100 rounded-full px-3 py-1">
                     -{co2.toLocaleString("pt-BR")} kg

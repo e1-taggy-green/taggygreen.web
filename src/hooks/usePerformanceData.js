@@ -44,10 +44,9 @@ export function usePerformanceData() {
         ]);
         
         setCategoryPerformance([
-          { categoria: "Carros e Utilitários", pedagios: 4820, co2_evitado: 2140, cor: "#10b981" },
-          { categoria: "Caminhões e Pesados", pedagios: 1230, co2_evitado: 1850, cor: "#f59e0b" },
-          { categoria: "Motos", pedagios: 980, co2_evitado: 385, cor: "#8b5cf6" },
-          { categoria: "Vans e Kombis", pedagios: 2400, co2_evitado: 280, cor: "#3b82f6" },
+          { categoria: "Carros ", pedagios: 4820, co2_evitado: 2140, cor: "#10b981" },
+          { categoria: "Caminhões", pedagios: 1230, co2_evitado: 1850, cor: "#f59e0b" },
+          
         ]);
       } finally {
         setLoading(false);

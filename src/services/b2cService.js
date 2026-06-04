@@ -1,19 +1,19 @@
 import api from './api';
 
+const B2C_EMAIL = 'teste.b2c@taggy.com';
+
 export const b2cService = {
   // --- B2C Principal ---
-  getUser: () => api.get('/api/v1/b2c/user'),
+  getUser: (email = B2C_EMAIL) => api.get(`/api/v1/b2c/user?email=${email}`),
+  getUserRastroHistorico: (email = B2C_EMAIL) => api.get(`/api/v1/b2c/user/rastro-historico?email=${email}`),
+  getUserExtrato: (email = B2C_EMAIL) => api.get(`/api/v1/b2c/user/extrato?email=${email}`),
 
-  getUserRastroHistorico: () => api.get('/api/v1/b2c/user/rastro-historico'),
-
-  getUserExtrato: () => api.get('/api/v1/b2c/user/extrato'),
-
-  getDestaqueMP: () => api.get('/api/v1/b2c/marketplace/destaques'),
-
-  // --- Marketplace B2C (aguardando endpoint) ---
+  // --- Marketplace ---
   getProdutosMP: (page = 1, size = 10) =>
-    api.get('/api/v1/b2c/marketplace/produtos', { params: { page, size } }),
+    api.get('/api/v1/marketplace/produtos', { params: { page, size } }),
 
-  updateSaldo: (produto_id) =>
-    api.post('/api/v1/b2c/marketplace/resgatar', { produto_id }),
+  getDestaqueMP: () => api.get('/api/v1/marketplace/destaque'),
+
+  resgatar: (user_id, product_id) =>
+    api.post('/api/v1/marketplace/resgates', { user_id, product_id }, { _suppressGlobalError: true }),
 };

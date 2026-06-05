@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Leaf, User, Building2, Calculator } from "lucide-react";
+import { Leaf, User, Building2, Calculator, Menu, X } from "lucide-react";
 
 export function Logo({ size = "md", onClick }) {
   const sizes = { sm: "text-base", md: "text-xl", lg: "text-3xl" };
@@ -19,35 +19,71 @@ export function Logo({ size = "md", onClick }) {
 
 export function Nav({ activePage, showB2bB2c = true }) {
   const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const navItems = [
+    { label: "Portal B2C",  icon: <User size={16} />,       path: "/b2c/hub",        page: "b2c",       outline: false },
+    { label: "Gestão B2B",  icon: <Building2 size={16} />,  path: "/b2b/dashboard",  page: "b2b",       outline: false },
+    { label: "Simulador",   icon: <Calculator size={16} />, path: "/b2b/simulador",  page: "simulador", outline: true  },
+  ];
 
   return (
     <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-100 shadow-sm">
-      <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
-        <Logo size="md" onClick={() => navigate("/")} />
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-4">
+        <Logo size="md" onClick={() => { navigate("/"); setMenuOpen(false); }} />
 
+        {/* Desktop nav */}
         {showB2bB2c && (
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => navigate("/b2c/hub")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-150 ${activePage === "b2c" ? "bg-green-500 text-white shadow-md shadow-green-200" : "text-gray-600 hover:bg-gray-100"}`}
-            >
-              <User size={16} /> Portal B2C
-            </button>
-            <button
-              onClick={() => navigate("/b2b/dashboard")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-150 ${activePage === "b2b" ? "bg-green-500 text-white shadow-md shadow-green-200" : "text-gray-600 hover:bg-gray-100"}`}
-            >
-              <Building2 size={16} /> Gestão B2B
-            </button>
-            <button
-              onClick={() => navigate("/b2b/simulador")}
-              className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border-2 border-green-500 text-green-700 hover:bg-green-50 transition-all duration-150"
-            >
-              <Calculator size={16} /> Simulador
-            </button>
+          <div className="hidden sm:flex items-center gap-2">
+            {navItems.map((item) => (
+              <button
+                key={item.page}
+                onClick={() => navigate(item.path)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-150 ${
+                  item.outline
+                    ? "border-2 border-green-500 text-green-700 hover:bg-green-50"
+                    : activePage === item.page
+                    ? "bg-green-500 text-white shadow-md shadow-green-200"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                {item.icon} {item.label}
+              </button>
+            ))}
           </div>
         )}
+
+        {/* Mobile hamburguer */}
+        {showB2bB2c && (
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="sm:hidden p-2 rounded-xl text-gray-600 hover:bg-gray-100 transition-colors"
+          >
+            {menuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
+        )}
       </div>
+
+      {/* Mobile dropdown menu */}
+      {showB2bB2c && menuOpen && (
+        <div className="sm:hidden bg-white border-t border-gray-100 shadow-lg px-4 py-3 flex flex-col gap-2">
+          {navItems.map((item) => (
+            <button
+              key={item.page}
+              onClick={() => { navigate(item.path); setMenuOpen(false); }}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all w-full text-left ${
+                item.outline
+                  ? "border-2 border-green-500 text-green-700"
+                  : activePage === item.page
+                  ? "bg-green-500 text-white"
+                  : "text-gray-600 hover:bg-gray-100"
+              }`}
+            >
+              {item.icon} {item.label}
+            </button>
+          ))}
+        </div>
+      )}
     </nav>
   );
 }

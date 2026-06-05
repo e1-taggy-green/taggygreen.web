@@ -1,8 +1,7 @@
 import api from './api';
 
-/**
- * Serviço que concentra todas as requisições referentes ao Módulo B2C (Motorista).
- */
+const B2C_EMAIL = 'teste.b2c@taggy.com';
+
 export const b2cService = {
   // --- Dashboard B2C ---
   

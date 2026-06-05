@@ -1,16 +1,128 @@
-import { useState } from "react";
-import { Nav, Footer, OFFERS, CAT_COLORS, OfferCard } from "../../../components/shared";
-import { Coins, ShoppingBag, Lightbulb } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { Nav, Footer } from "../../../components/shared";
+import { Coins, ShoppingBag, Lightbulb, Leaf } from "lucide-react";
+import { b2cService } from "../../../services/b2cService";
+import { useUser } from "../../../contexts/UserContext";
+import { useToast } from "../../../contexts/ToastContext";
 
-/**
- * MARKETPLACE PAGE
- * Página de marketplace do portal B2C
- * Usuário pode filtrar ofertas por categoria e resgatar pontos de carbono
- */
+const CATEGORIAS = [
+  { id: "all",         label: "Todos"         },
+  { id: "alimentacao", label: "Alimentação"   },
+  { id: "mobilidade",  label: "Mobilidade"    },
+  { id: "estilo",      label: "Estilo de Vida"},
+  { id: "servicos",    label: "Serviços"      },
+];
+
+function SkeletonCard() {
+  return (
+    <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden animate-pulse">
+      <div className="h-40 bg-gray-100" />
+      <div className="p-4 space-y-2">
+        <div className="h-4 bg-gray-100 rounded w-3/4" />
+        <div className="h-3 bg-gray-100 rounded w-1/2" />
+        <div className="h-8 bg-gray-100 rounded mt-3" />
+      </div>
+    </div>
+  );
+}
+
+function ProdutoCard({ produto, onResgatar, resgatando }) {
+  return (
+    <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col">
+      {/* Imagem ou placeholder */}
+      <div className="h-40 bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center flex-shrink-0">
+        <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-sm">
+          <Leaf size={32} className="text-green-500" />
+        </div>
+      </div>
+
+      <div className="p-4 flex flex-col flex-1">
+        <h3 className="font-bold text-gray-900 text-sm mb-1 line-clamp-2">{produto.nome}</h3>
+        {produto.descricao && (
+          <p className="text-xs text-gray-400 mb-3 line-clamp-2">{produto.descricao}</p>
+        )}
+        <div className="mt-auto">
+          <div className="flex items-center gap-1 mb-3">
+            <Coins size={14} className="text-green-600" />
+            <span className="text-sm font-black text-green-700">
+              {(produto.custo_pontos_carbono ?? produto.pontos_custo ?? 0).toLocaleString("pt-BR")} pts
+            </span>
+          </div>
+          <button
+            onClick={() => onResgatar(produto)}
+            disabled={resgatando}
+            className="w-full bg-green-500 hover:bg-green-600 disabled:opacity-50 text-white text-xs font-bold py-2.5 rounded-xl transition-colors"
+          >
+            {resgatando ? "Resgatando..." : "Resgatar"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function MarketplacePage() {
-  const [filterCat, setFilterCat] = useState("all");
+  const navigate = useNavigate();
+  const { userName, userId, userPoints, debitarPontos } = useUser();
+  const { addToast } = useToast();
 
-  const filteredOffers = filterCat === "all" ? OFFERS : OFFERS.filter(o => o.cat === filterCat);
+  const [produtos, setProdutos]       = useState([]);
+  const [loading, setLoading]         = useState(true);
+  const [page, setPage]               = useState(1);
+  const [total, setTotal]             = useState(0);
+  const [filtro, setFiltro]           = useState("all");
+  const [resgatando, setResgatando]   = useState(null); // product_id sendo resgatado
+
+  const SIZE = 9;
+
+  const fetchProdutos = useCallback(async (p = 1) => {
+    setLoading(true);
+    try {
+      const res = await b2cService.getProdutosMP(p, SIZE);
+      setProdutos(res.data?.items ?? []);
+      setTotal(res.data?.total ?? 0);
+      setPage(p);
+    } catch {
+      // erro já tratado pelo interceptador global
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchProdutos(1); }, [fetchProdutos]);
+
+  const handleResgatar = async (produto) => {
+    if (!userId) {
+      addToast("Usuário não identificado. Tente recarregar a página.", "error");
+      return;
+    }
+
+    const custo = produto.custo_pontos_carbono ?? produto.pontos_custo ?? 0;
+
+    setResgatando(produto.id);
+    try {
+      const res = await b2cService.resgatar(userId, produto.id);
+      const pontos = res.data?.pontos_debitados ?? custo;
+      debitarPontos(pontos);
+      addToast(`Resgate realizado! Você usou ${pontos.toLocaleString("pt-BR")} pontos.`, "success");
+    } catch (err) {
+      const status = err?.response?.status;
+      if (status === 422 || status === 400) {
+        addToast("Você ainda não mitigou carbono suficiente para essa recompensa. Continue usando a Taggy!", "error", 6000);
+      }
+      // outros erros já tratados pelo interceptador global
+    } finally {
+      setResgatando(null);
+    }
+  };
+
+  const TABS = [
+    { id: "meu-rastro",  label: "Meu Rastro Verde",  path: "/b2c/hub"         },
+    { id: "marketplace", label: "Marketplace Verde",  path: "/b2c/marketplace" },
+  ];
+
+  const totalPages = Math.ceil(total / SIZE);
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -18,78 +130,137 @@ export default function MarketplacePage() {
 
       {/* HEADER */}
       <div className="bg-white border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-6 pt-8 pb-6">
-          <div className="flex items-start justify-between mb-5 flex-wrap gap-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-4 sm:pt-6 pb-0">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-5">
             <div>
-              <h1 className="text-2xl font-black text-gray-900" style={{fontFamily:"'Syne',sans-serif"}}>Marketplace Verde</h1>
+              <h1 className="text-xl sm:text-2xl font-black text-gray-900" style={{ fontFamily: "'Syne',sans-serif" }}>
+                Marketplace Verde
+              </h1>
               <p className="text-sm text-gray-500 mt-0.5">Troque seus pontos de carbono em benefícios exclusivos</p>
             </div>
-            <div className="flex items-center gap-3 bg-gradient-to-r from-green-50 to-white border-2 border-green-200 rounded-2xl px-5 py-3">
-              <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
-                <Coins size={24} className="text-green-600" />
+            <div className="flex items-center gap-3 bg-gradient-to-r from-green-50 to-white border-2 border-green-200 rounded-2xl px-4 py-2.5 sm:px-5 sm:py-3 w-full sm:w-auto">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                <Coins size={22} className="text-green-600" />
               </div>
-              <div>
+              <div className="flex-1 sm:flex-none">
                 <div className="text-xs text-gray-500 font-semibold">Meus Pontos de Carbono</div>
-                <div className="text-xl font-black text-green-700" style={{fontFamily:"'Syne',sans-serif"}}>1.250 pts</div>
+                <div className="text-lg sm:text-xl font-black text-green-700" style={{ fontFamily: "'Syne',sans-serif" }}>
+                  {userPoints != null ? `${userPoints.toLocaleString("pt-BR")} pts` : "— pts"}
+                </div>
               </div>
             </div>
+          </div>
+
+          {/* Tabs */}
+          <div className="flex gap-0 overflow-x-auto scrollbar-hide">
+            {TABS.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => navigate(t.path)}
+                className={`px-4 sm:px-5 py-3 text-sm font-semibold border-b-2 transition-all whitespace-nowrap flex-shrink-0 ${
+                  t.id === "marketplace"
+                    ? "border-green-500 text-green-700"
+                    : "border-transparent text-gray-500 hover:text-gray-900"
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
           </div>
         </div>
       </div>
 
       {/* CONTENT */}
-      <div className="flex-1 bg-gray-50 px-6 py-7">
+      <div className="flex-1 bg-gray-50 px-4 sm:px-6 py-5 sm:py-7">
         <div className="max-w-6xl mx-auto">
-          {/* INFO */}
-          <div className="mb-6">
+
+          <div className="mb-5">
             <div className="text-xs font-bold text-green-600 uppercase tracking-widest mb-1">Ofertas Exclusivas</div>
-            <h2 className="text-xl font-black text-gray-900 mb-1" style={{fontFamily:"'Syne',sans-serif"}}>Explore todas as ofertas</h2>
+            <h2 className="text-lg sm:text-xl font-black text-gray-900 mb-1" style={{ fontFamily: "'Syne',sans-serif" }}>
+              Explore todas as ofertas
+            </h2>
             <p className="text-sm text-gray-500">Cada oferta tem um custo em pontos de carbono. Quanto mais sustentável você for, mais pontos acumula!</p>
           </div>
 
-          {/* FILTROS */}
-          <div className="flex gap-2 flex-wrap mb-6">
-            {[{id:"all",label:"Todos"},{id:"alimentacao",label:" Alimentação"},{id:"mobilidade",label:" Mobilidade"},{id:"estilo",label:" Estilo de Vida"},{id:"servicos",label:" Serviços"}].map(f => (
-              <button key={f.id} onClick={() => setFilterCat(f.id)}
-                className={`px-4 py-2 rounded-full border text-sm font-semibold transition-all ${filterCat===f.id?"bg-green-500 text-white border-green-500 shadow-md shadow-green-100":"border-gray-200 text-gray-600 hover:border-green-400 hover:text-green-700"}`}>
-                {f.label}
+          {/* Filtros de categoria */}
+          <div className="flex gap-2 flex-wrap mb-5">
+            {CATEGORIAS.map((c) => (
+              <button
+                key={c.id}
+                onClick={() => setFiltro(c.id)}
+                className={`px-4 py-2 rounded-full border text-sm font-semibold transition-all ${
+                  filtro === c.id
+                    ? "bg-green-500 text-white border-green-500 shadow-md shadow-green-100"
+                    : "border-gray-200 text-gray-600 hover:border-green-400 hover:text-green-700 bg-white"
+                }`}
+              >
+                {c.label}
               </button>
             ))}
           </div>
 
-          {/* GRID DE OFERTAS */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filteredOffers.map(o => <OfferCard key={o.id} offer={o} showBadge/>)}
-          </div>
-
-          {/* EMPTY STATE */}
-          {filteredOffers.length === 0 && (
+          {/* Grid de produtos */}
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+              {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
+            </div>
+          ) : produtos.length === 0 ? (
             <div className="text-center py-12">
-              <div className="mb-4">
-                <ShoppingBag size={48} className="text-gray-300 mx-auto" />
-              </div>
-              <div className="text-lg font-black text-gray-900 mb-2">Nenhuma oferta nesta categoria</div>
-              <p className="text-gray-500">Tente selecionar outra categoria</p>
+              <ShoppingBag size={48} className="text-gray-300 mx-auto mb-4" />
+              <div className="text-lg font-black text-gray-900 mb-2">Nenhuma oferta disponível</div>
+              <p className="text-gray-500 text-sm">Volte em breve para novas recompensas!</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+              {produtos.map((p) => (
+                <ProdutoCard
+                  key={p.id}
+                  produto={p}
+                  onResgatar={handleResgatar}
+                  resgatando={resgatando === p.id}
+                />
+              ))}
             </div>
           )}
 
-          {/* INFO BOX */}
-          <div className="mt-8 bg-green-50 border border-green-200 border-l-4 border-l-green-500 rounded-2xl p-5 flex items-start gap-3">
-            <span className="mt-0.5 flex-shrink-0">
-              <Lightbulb size={24} className="text-green-600" />
-            </span>
+          {/* Paginação */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-8">
+              <button
+                onClick={() => fetchProdutos(page - 1)}
+                disabled={page === 1}
+                className="px-4 py-2 rounded-xl border border-gray-200 text-sm font-semibold disabled:opacity-40 hover:border-green-500 hover:text-green-700 transition-all"
+              >
+                Anterior
+              </button>
+              <span className="text-sm text-gray-500 font-semibold px-2">
+                {page} / {totalPages}
+              </span>
+              <button
+                onClick={() => fetchProdutos(page + 1)}
+                disabled={page === totalPages}
+                className="px-4 py-2 rounded-xl border border-gray-200 text-sm font-semibold disabled:opacity-40 hover:border-green-500 hover:text-green-700 transition-all"
+              >
+                Próxima
+              </button>
+            </div>
+          )}
+
+          {/* Dica */}
+          <div className="mt-6 sm:mt-8 bg-green-50 border border-green-200 border-l-4 border-l-green-500 rounded-2xl p-4 sm:p-5 flex items-start gap-3">
+            <Lightbulb size={22} className="text-green-600 mt-0.5 flex-shrink-0" />
             <div>
               <div className="font-bold text-green-800 text-sm mb-1">Como funciona?</div>
               <div className="text-xs text-green-700 leading-relaxed">
-                Cada vez que você utiliza sua Tag Edenred em pedágios e postos, você acumula pontos de carbono. 
-                Esses pontos podem ser resgatados por descontos em nossas marcas parceiras. Quanto mais você 
-                economiza CO₂, mais benefícios consegue!
+                Cada vez que você utiliza sua Tag Edenred em pedágios, você acumula pontos de carbono.
+                Esses pontos podem ser resgatados por descontos em nossas marcas parceiras.
               </div>
             </div>
           </div>
         </div>
       </div>
-      <Footer/>
+
+      <Footer />
     </div>
   );
 }

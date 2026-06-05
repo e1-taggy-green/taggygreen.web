@@ -1,36 +1,23 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { ToastProvider }   from '../contexts/ToastContext';
-import { SpinnerProvider } from '../contexts/SpinnerContext';
-import { UserProvider }    from '../contexts/UserContext';
 
-import Home           from '../pages/Home';
-import HubB2C         from '../pages/B2C/Hub';
-import MeuRastroVerde from '../pages/B2C/MeuRastro';
+import Home from '../pages/Home';
+import HubB2C from '../pages/B2C/Hub';
 import MarketplaceB2C from '../pages/B2C/Marketplace';
-import DashboardB2B   from '../pages/B2B/Dashboard';
-import PerformanceB2B from '../pages/B2B/Performance';
-import SimuladorB2B   from '../pages/B2B/Simulador';
+import DashboardB2B from '../pages/B2B/Dashboard';
+import SimuladorB2B from '../pages/B2B/Simulador';
 
 export default function AppRoutes() {
   return (
     <BrowserRouter>
-      <ToastProvider>
-        <SpinnerProvider>
-          <UserProvider>
-            <Routes>
-              <Route path="/"                element={<Home />} />
-              <Route path="/b2c/hub"         element={<HubB2C />} />
-              <Route path="/b2c/meu-rastro"  element={<MeuRastroVerde />} />
-              <Route path="/b2c/marketplace" element={<MarketplaceB2C />} />
-              <Route path="/b2b/dashboard"   element={<DashboardB2B />} />
-              <Route path="/b2b/performance" element={<PerformanceB2B />} />
-              <Route path="/b2b/simulador"   element={<SimuladorB2B />} />
-              <Route path="/simulador"       element={<SimuladorB2B />} />
-              <Route path="*"                element={<h1 className="text-center mt-10">404 - Página Não Encontrada</h1>} />
-            </Routes>
-          </UserProvider>
-        </SpinnerProvider>
-      </ToastProvider>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/b2c/hub" element={<HubB2C />} />
+        <Route path="/b2c/marketplace" element={<MarketplaceB2C />} />
+        <Route path="/b2b/dashboard" element={<DashboardB2B />} />
+        <Route path="/b2b/simulador" element={<SimuladorB2B />} />
+        <Route path="/simulador" element={<SimuladorB2B />} />
+        <Route path="*" element={<h1 className="text-center mt-10">404 - Página Não Encontrada</h1>} />
+      </Routes>
     </BrowserRouter>
   );
 }

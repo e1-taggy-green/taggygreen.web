@@ -3,17 +3,21 @@ import api from './api';
 const B2C_EMAIL = 'teste.b2c@taggy.com';
 
 export const b2cService = {
-  // --- B2C Principal ---
-  getUser: (email = B2C_EMAIL) => api.get(`/api/v1/b2c/user?email=${email}`),
-  getUserRastroHistorico: (email = B2C_EMAIL) => api.get(`/api/v1/b2c/user/rastro-historico?email=${email}`),
-  getUserExtrato: (email = B2C_EMAIL) => api.get(`/api/v1/b2c/user/extrato?email=${email}`),
+  // --- Dashboard B2C ---
+  
+  getUser: (email) => api.get('/api/v1/b2c/user', { params: { email } }),
+  
+  getUserRastroHistorico: (email) => api.get('/api/v1/b2c/user/rastro-historico', { params: { email } }),
+  
+  getUserExtrato: (email, limit) => api.get('/api/v1/b2c/user/extrato', { params: { email, limit } }),
+  
+  getDestaqueMP: () => api.get('/api/v1/b2c/marketplace/destaques'),
 
-  // --- Marketplace ---
-  getProdutosMP: (page = 1, size = 10) =>
-    api.get('/api/v1/marketplace/produtos', { params: { page, size } }),
-
-  getDestaqueMP: () => api.get('/api/v1/marketplace/destaque'),
-
-  resgatar: (user_id, product_id) =>
-    api.post('/api/v1/marketplace/resgates', { user_id, product_id }, { _suppressGlobalError: true }),
+  // --- Marketplace B2C ---
+  
+  // Recebe a página atual como parâmetro para paginação (default = 1)
+  getProdutosMP: (page = 1) => api.get('/api/v1/b2c/marketplace/produtos', { params: { page } }),
+  
+  // Envia os dados da transação para o back-end processar
+  updateSaldo: (dadosCompra) => api.post('/api/v1/b2c/marketplace/update-saldo', dadosCompra),
 };

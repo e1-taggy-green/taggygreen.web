@@ -1,16 +1,49 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Nav, Footer, Progress } from "../../../components/shared";
-import {
-  Coins, Leaf, Fuel, MapPin, Star, BadgeCheck, Car, TreePine, Wind, AlertTriangle,
-} from "lucide-react";
-import {
-  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
-} from "recharts";
-import { useRastroVerde } from "../../../hooks/useRastroVerde";
-import { useUser } from "../../../contexts/UserContext";
+import { Nav, Footer, MetricCard, Progress } from "../../../components/shared";
+import { Coins, Leaf, Fuel, MapPin, Star, BadgeCheck, Car, Loader2 } from "lucide-react";
+import { useB2CDashboard } from "../../../hooks/useB2CDashboard";
 
-const FATOR_ARVORE = 15;
+/**
+ * B2C HUB PAGE
+ * Portal do Motorista - Acompanhe seu rastro de CO₂ e marketplace
+ * Agora conectado à API real via useB2CDashboard hook.
+ */
+export default function HubB2C() {
+  const navigate = useNavigate();
+  const [tab, setTab] = useState("rastro");
+  const { data, loading, error } = useB2CDashboard();
+
+  // Dados do usuário vindos da API (com fallback seguro)
+  const userName = data.user?.userName || "Motorista";
+  const userPoints = data.user?.userPoints ?? 0;
+
+  // Último mês do rastro histórico (para o hero card)
+  const ultimoMesRastro = data.rastro?.length > 0 ? data.rastro[data.rastro.length - 1] : null;
+  const co2UltimoMes = ultimoMesRastro?.co2_economizado ?? 0;
+  const labelUltimoMes = ultimoMesRastro?.mes ?? "—";
+
+  // Formatação de pontos para exibição (ex: 1.250 pts)
+  const pontosFormatados = userPoints.toLocaleString("pt-BR", { maximumFractionDigits: 1 });
+
+  // Ícone baseado no tipo do evento (extrato)
+  const getEventIcon = (nome) => {
+    if (nome?.toLowerCase().includes("pedágio")) return <MapPin size={18} className="text-green-600" />;
+    if (nome?.toLowerCase().includes("estacionamento")) return <Car size={18} className="text-green-600" />;
+    return <Fuel size={18} className="text-green-600" />;
+  };
+
+  // Formata data do evento para exibição legível
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "";
+    const d = new Date(dateStr);
+    const day = d.getDate();
+    const months = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+    const month = months[d.getMonth()];
+    const hours = d.getHours().toString().padStart(2, "0");
+    const minutes = d.getMinutes().toString().padStart(2, "0");
+    return `${day} ${month} · ${hours}:${minutes}`;
+  };
 
 export function calcularEquivalencia(totalKg) {
   const arvores = Math.floor(totalKg / FATOR_ARVORE);
@@ -58,54 +91,26 @@ function GamificacaoEngine({ totalKgCO2 }) {
   );
 }
 
-function SkeletonBlock({ h = "h-16" }) {
-  return <div className={`${h} rounded-2xl animate-pulse bg-gray-100`} />;
-}
-
-function ExtratoEmpty() {
-  return (
-    <div className="flex flex-col items-center justify-center py-12 text-center px-6">
-      <div className="w-14 h-14 bg-green-50 rounded-full flex items-center justify-center mb-4">
-        <Leaf size={28} className="text-green-400" />
-      </div>
-      <p className="font-bold text-gray-800 text-base">Você ainda não passou por pedágios.</p>
-      <p className="text-sm text-gray-400 mt-1">Sua jornada verde está prestes a começar!</p>
-    </div>
-  );
-}
-
-function TabMeuRastro() {
-  const { rastro, extrato, historico, loading, error, refetch } = useRastroVerde("mensal");
-  const co2Total = rastro?.co2_evitado ?? 0;
-
-  return (
-    <div className="space-y-4 sm:space-y-5">
-
-      {/* Painel CO₂ — responsivo: empilha no mobile */}
-      <div className="relative bg-gradient-to-br from-green-700 to-green-950 rounded-2xl sm:rounded-3xl p-5 sm:p-8 overflow-hidden shadow-xl">
-        <div className="absolute right-0 top-0 bottom-0 w-48 sm:w-64 opacity-5">
-          <svg viewBox="0 0 200 200" className="w-full h-full">
-            <circle cx="150" cy="50" r="120" fill="white" />
-            <circle cx="80" cy="160" r="80" fill="white" />
-          </svg>
-        </div>
-        <div className="relative z-10 flex items-center justify-between gap-4">
-          <div className="flex-1 min-w-0">
-            <div className="text-xs font-bold text-green-300 uppercase tracking-widest mb-2 sm:mb-3 flex items-center gap-2">
-              <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse flex-shrink-0"></span>
-              <span className="truncate">Economia de Carbono — Abril/2026</span>
+      {/* HEADER PAINEL */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-6xl mx-auto px-6 pt-6 pb-0">
+          <div className="flex items-start justify-between mb-5 flex-wrap gap-4">
+            <div>
+              <h1 className="text-2xl font-black text-gray-900" style={{fontFamily:"'Syne',sans-serif"}}>
+                Olá, {userName.split(" ")[0]}.{" "}
+              </h1>
+              <p className="text-sm text-gray-500 mt-0.5">Bem-vindo ao seu painel sustentável. Veja seu impacto no mundo.</p>
             </div>
-            <div className="flex items-baseline gap-2 mb-2 sm:mb-3 flex-wrap">
-              {loading ? (
-                <div className="w-32 sm:w-40 h-10 sm:h-14 rounded-xl animate-pulse bg-white/10" />
-              ) : (
-                <>
-                  <span className="text-4xl sm:text-6xl font-black text-white leading-none" style={{ fontFamily: "'Syne',sans-serif" }}>
-                    {co2Total.toFixed(1).replace(".", ",")}
-                  </span>
-                  <span className="text-lg sm:text-2xl font-bold text-green-300">kg CO₂</span>
-                </>
-              )}
+            <div className="flex items-center gap-3 bg-gradient-to-r from-green-50 to-white border-2 border-green-200 rounded-2xl px-5 py-3">
+              <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+                <Coins size={24} className="text-green-600" />
+              </div>
+              <div>
+                <div className="text-xs text-gray-500 font-semibold">Meus Pontos de Carbono</div>
+                <div className="text-xl font-black text-green-700" style={{fontFamily:"'Syne',sans-serif"}}>
+                  {loading ? "..." : `${pontosFormatados} pts`}
+                </div>
+              </div>
             </div>
             <p className="text-white/65 text-xs sm:text-sm leading-relaxed">
               de CO₂ evitados usando sua Tag Edenred nas passagens de pedágio.
@@ -130,60 +135,106 @@ function TabMeuRastro() {
         </div>
       )}
 
-      {/* Gamificação */}
-      {!loading && !error && <GamificacaoEngine totalKgCO2={co2Total} />}
+          {/* LOADING STATE */}
+          {loading && (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 size={32} className="text-green-500 animate-spin" />
+              <span className="ml-3 text-gray-500 font-medium">Carregando seus dados...</span>
+            </div>
+          )}
 
-      {/* Cards equivalência — 1 coluna mobile, 3 desktop */}
-      {!loading && !error && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-          {[
-            { bg: "bg-green-50",  border: "border-green-200",  icon: <TreePine size={20} className="text-green-600" />, label: "Árvore absorve 10–20 kg de CO₂ por ano.",                            valor: `${rastro?.arvores_equivalentes ?? 0} Árvores`   },
-            { bg: "bg-orange-50", border: "border-orange-200", icon: <Car      size={20} className="text-orange-500" />, label: "De um carro à gasolina comum, poupando combustível e fumaça.",       valor: `${Math.round((rastro?.co2_evitado ?? 0) * 0.42)} L poupados` },
-            { bg: "bg-yellow-50", border: "border-yellow-200", icon: <Wind     size={20} className="text-yellow-500" />, label: "Equivalente à energia gasta para deixar 10 lâmpadas de LED acesas.", valor: `${rastro?.horas_vento ?? 0}h de luz`  },
-          ].map((eq, i) => (
-            <div key={i} className={`${eq.bg} border ${eq.border} rounded-2xl p-4 sm:p-5 flex sm:flex-col flex-row items-center sm:items-start gap-3 sm:gap-2`}>
-              <div className="w-9 h-9 bg-white rounded-xl flex items-center justify-center shadow-sm flex-shrink-0">{eq.icon}</div>
-              <div className="flex-1 sm:flex-none">
-                <p className="text-xs text-gray-500 leading-snug hidden sm:block">{eq.label}</p>
-                <p className="font-black text-gray-900 text-base sm:text-base" style={{ fontFamily: "'Syne',sans-serif" }}>{eq.valor}</p>
-                <p className="text-xs text-gray-500 leading-snug sm:hidden mt-0.5">{eq.label}</p>
+          {/* ERROR STATE */}
+          {error && !loading && (
+            <div className="bg-red-50 border border-red-200 border-l-4 border-l-red-500 rounded-2xl p-4 mb-5">
+              <div className="font-bold text-red-800 text-sm mb-1">Erro ao carregar dados</div>
+              <div className="text-xs text-red-700">{error}</div>
+            </div>
+          )}
+
+          {/* ── RASTRO ── */}
+          {!loading && tab === "rastro" && (
+            <div className="space-y-5">
+              {/* Hero rastro */}
+              <div className="relative bg-gradient-to-br from-green-700 to-green-950 rounded-3xl p-8 flex items-center justify-between overflow-hidden shadow-xl">
+                <div className="absolute right-0 top-0 bottom-0 w-64 opacity-5">
+                  <svg viewBox="0 0 200 200" className="w-full h-full"><circle cx="150" cy="50" r="120" fill="white"/><circle cx="80" cy="160" r="80" fill="white"/></svg>
+                </div>
+                <div className="relative z-10">
+                  <div className="text-xs font-bold text-green-300 uppercase tracking-widest mb-3 flex items-center gap-2">
+                    <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                    Meu Rastro — {labelUltimoMes}
+                  </div>
+                  <div className="flex items-baseline gap-2 mb-3">
+                    <span className="text-6xl font-black text-white leading-none" style={{fontFamily:"'Syne',sans-serif"}}>
+                      {co2UltimoMes.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}
+                    </span>
+                    <span className="text-2xl font-bold text-green-300">kg CO₂</span>
+                  </div>
+                  <p className="text-white/65 text-sm max-w-xs leading-relaxed">de CO₂ evitados usando sua Tag Edenred nas passagens de pedágio e estacionamentos neste período.</p>
+                </div>
+                <div className="relative z-10 opacity-70 flex-shrink-0">
+                  <Leaf size={120} className="text-white" />
+                </div>
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Extrato */}
-      {!error && (
-        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
-          <div className="px-4 sm:px-5 py-4 border-b border-gray-100 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></span>
-            <span className="font-bold text-gray-800 text-sm">Extrato de Impacto</span>
-            {!loading && (
-              <span className="text-gray-400 text-xs font-normal ml-1">
-                — {extrato.length} passagem{extrato.length !== 1 ? "s" : ""}
-              </span>
-            )}
-          </div>
-          {loading ? (
-            <div className="p-4 space-y-3">{[1,2,3].map((i) => <SkeletonBlock key={i} />)}</div>
-          ) : extrato.length === 0 ? (
-            <ExtratoEmpty />
-          ) : (
-            extrato.map((item) => (
-              <div key={item.id} className="flex items-center justify-between px-4 sm:px-5 py-3 sm:py-3.5 border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
-                <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 bg-green-50 rounded-full flex items-center justify-center flex-shrink-0">
-                    <MapPin size={16} className="text-green-600" />
+              {/* Métricas do rastro histórico (meses) */}
+              {data.rastro && data.rastro.length > 0 && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {data.rastro.map((mes, i) => (
+                    <div key={i} className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+                      <div className="text-xs text-gray-500 font-semibold mb-1">{mes.mes}</div>
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-2xl font-black text-gray-900" style={{fontFamily:"'Syne',sans-serif"}}>
+                          {mes.co2_economizado.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}
+                        </span>
+                        <span className="text-gray-400 font-semibold">kg</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Métricas adicionais */}
+              <div className="grid grid-cols-3 gap-4">
+                <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+                  <div className="w-11 h-11 bg-green-50 rounded-xl flex items-center justify-center mb-3">
+                    <Leaf size={24} className="text-green-600" />
                   </div>
-                  <div className="min-w-0">
-                    <p className="font-semibold text-sm text-gray-800 truncate">{item.praca}</p>
-                    <p className="text-xs text-gray-400">{item.data}</p>
+                  <div className="text-xs text-gray-500 font-semibold mb-1">CO₂ Total Acumulado</div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-3xl font-black text-gray-900" style={{fontFamily:"'Syne',sans-serif"}}>
+                      {userPoints.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}
+                    </span>
+                    <span className="text-gray-400 font-semibold">kg</span>
                   </div>
                 </div>
-                <div className="text-right flex-shrink-0 ml-2">
-                  <p className="font-bold text-sm text-green-600 whitespace-nowrap">−{item.mitigacao_kg.toFixed(1).replace(".", ",")} kg</p>
-                  <p className="text-xs text-gray-400">CO₂</p>
+                <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+                  <div className="w-11 h-11 bg-blue-50 rounded-xl flex items-center justify-center mb-3">
+                    <MapPin size={24} className="text-blue-600" />
+                  </div>
+                  <div className="text-xs text-gray-500 font-semibold mb-1">Passagens Recentes</div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-3xl font-black text-gray-900" style={{fontFamily:"'Syne',sans-serif"}}>
+                      {data.extrato?.length ?? 0}
+                    </span>
+                    <span className="text-gray-400 font-semibold">eventos</span>
+                  </div>
+                </div>
+                <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+                  <div className="w-11 h-11 bg-amber-50 rounded-xl flex items-center justify-center mb-3">
+                    <Star size={24} className="text-amber-600" />
+                  </div>
+                  <div className="text-xs text-gray-500 font-semibold mb-1">Meses Rastreados</div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-3xl font-black text-gray-900" style={{fontFamily:"'Syne',sans-serif"}}>
+                      {data.rastro?.length ?? 0}
+                    </span>
+                    <span className="text-gray-400 font-semibold">meses</span>
+                  </div>
                 </div>
               </div>
             ))
@@ -254,86 +305,39 @@ function TabResumo({ userPoints }) {
         </div>
       </div>
 
-      {/* Cards — 1 col mobile, 3 desktop */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-        <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-5 shadow-sm">
-          <div className="w-10 h-10 sm:w-11 sm:h-11 bg-green-50 rounded-xl flex items-center justify-center mb-3"><Fuel size={22} className="text-green-600" /></div>
-          <div className="text-xs text-gray-500 font-semibold mb-1">Combustível Economizado</div>
-          <div className="flex items-baseline gap-1">
-            <span className="text-2xl sm:text-3xl font-black text-gray-900" style={{fontFamily:"'Syne',sans-serif"}}>
-              {loading ? "—" : Math.round((rastro?.co2_evitado ?? 0) * 0.42)}
-            </span>
-            <span className="text-gray-400 font-semibold">L</span>
-          </div>
-        </div>
-        <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-5 shadow-sm">
-          <div className="w-10 h-10 sm:w-11 sm:h-11 bg-blue-50 rounded-xl flex items-center justify-center mb-3"><MapPin size={22} className="text-blue-600" /></div>
-          <div className="text-xs text-gray-500 font-semibold mb-1">Árvores Equivalentes</div>
-          <div className="flex items-baseline gap-1">
-            <span className="text-2xl sm:text-3xl font-black text-gray-900" style={{fontFamily:"'Syne',sans-serif"}}>
-              {loading ? "—" : rastro?.arvores_equivalentes ?? 0}
-            </span>
-            <span className="text-gray-400 font-semibold">árv.</span>
-          </div>
-        </div>
-        <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-5 shadow-sm">
-          <div className="w-10 h-10 sm:w-11 sm:h-11 bg-amber-50 rounded-xl flex items-center justify-center mb-3"><Star size={22} className="text-amber-600" /></div>
-          <div className="text-xs text-gray-500 font-semibold mb-1">Pontos Acumulados</div>
-          <div className="flex items-baseline gap-1">
-            <span className="text-2xl sm:text-3xl font-black text-gray-900" style={{fontFamily:"'Syne',sans-serif"}}>
-              {userPoints != null ? userPoints.toLocaleString("pt-BR") : "—"}
-            </span>
-            <span className="text-gray-400 font-semibold">pts</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-green-50 border border-green-200 border-l-4 border-l-green-500 rounded-2xl p-4 flex items-start gap-3">
-        <BadgeCheck size={22} className="text-green-600 mt-0.5 flex-shrink-0" />
-        <div>
-          <div className="font-bold text-green-800 text-sm mb-1">Dados Certificados — GHG Protocol</div>
-          <div className="text-xs text-green-700 leading-relaxed">Todos os cálculos estão em conformidade com as diretrizes do GHG Protocol para emissões de escopo 1 e 3.</div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export default function HubB2C() {
-  const navigate = useNavigate();
-  const [tab, setTab] = useState("meu-rastro");
-  const { userName, userPoints } = useUser();
-
-  const TABS = [
-    { id: "meu-rastro",  label: "Meu Rastro Verde" },
-    { id: "marketplace", label: "Marketplace Verde" },
-  ];
-
-  return (
-    <div className="min-h-screen bg-white flex flex-col">
-      <Nav activePage="b2c" />
-
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-4 sm:pt-6 pb-0">
-
-          {/* Header — empilha no mobile */}
-          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-5">
-            <div>
-              <h1 className="text-xl sm:text-2xl font-black text-gray-900" style={{ fontFamily: "'Syne',sans-serif" }}>
-                {userName ? `Olá, ${userName}.` : "Olá!"}
-              </h1>
-              <p className="text-sm text-gray-500 mt-0.5">Bem-vindo ao seu painel sustentável. Veja seu impacto no mundo.</p>
-            </div>
-            {/* Card de pontos — full width no mobile */}
-            <div className="flex items-center gap-3 bg-gradient-to-r from-green-50 to-white border-2 border-green-200 rounded-2xl px-4 py-2.5 sm:px-5 sm:py-3 w-full sm:w-auto">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                <Coins size={22} className="text-green-600" />
+          {/* ── HISTORICO ── */}
+          {!loading && tab === "historico" && (
+            <div className="space-y-5">
+              <div>
+                <div className="text-xs font-bold text-green-600 uppercase tracking-widest mb-1">Histórico</div>
+                <h2 className="text-2xl font-black text-gray-900" style={{fontFamily:"'Syne',sans-serif"}}>Suas passagens e economias</h2>
               </div>
-              <div className="flex-1 sm:flex-none">
-                <div className="text-xs text-gray-500 font-semibold">Meus Pontos de Carbono</div>
-                <div className="text-lg sm:text-xl font-black text-green-700" style={{ fontFamily: "'Syne',sans-serif" }}>
-                  {userPoints != null ? `${userPoints.toLocaleString("pt-BR")} pts` : "— pts"}
+              <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
+                <div className="px-5 py-4 border-b border-gray-100 font-bold text-gray-800 text-sm flex items-center gap-2">
+                  Extrato de Passagens — <span className="text-gray-500 font-normal">{data.extrato?.length ?? 0} registros</span>
                 </div>
+                {data.extrato && data.extrato.length > 0 ? (
+                  data.extrato.map((row, i) => (
+                    <div key={i} className="flex items-center justify-between px-5 py-3.5 border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 bg-green-50 rounded-full flex items-center justify-center text-base">
+                          {getEventIcon(row.nome)}
+                        </div>
+                        <div>
+                          <div className="font-semibold text-sm text-gray-800">{row.nome}</div>
+                          <div className="text-xs text-gray-400">{formatDate(row.data)}</div>
+                        </div>
+                      </div>
+                      <div className="font-bold text-sm text-green-600">
+                        −{row.registro_economia.toLocaleString("pt-BR", { maximumFractionDigits: 2 })} kg CO₂
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-10 text-gray-400 text-sm">
+                    Nenhuma passagem registrada ainda.
+                  </div>
+                )}
               </div>
             </div>
           </div>

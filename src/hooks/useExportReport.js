@@ -2,6 +2,7 @@ import { useState } from "react";
 import { toPng } from "html-to-image";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
+import { b2bService } from "../services/b2bService";
 
 export function useExportReport({ showSpinner, hideSpinner } = {}) {
   const [loading, setLoading] = useState(false);
@@ -117,15 +118,11 @@ export function useExportReport({ showSpinner, hideSpinner } = {}) {
       setError(null);
       if (showSpinner) showSpinner("Exportando CSV...");
 
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      // Chama a API real para gerar o CSV com dados do banco
+      const email = 'teste.b2b@taggy.com';
+      const response = await b2bService.getRelatorioESG_csv(email);
 
-      // Apenas Carros e Caminhões
-      const csvContent =
-        "Categoria,Passagens,CO2 Evitado,Economia\n" +
-        "Carros,4820,2140 kg,R$ 8.950\n" +
-        "Caminhões,1230,1850 kg,R$ 7.200\n";
-
-      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const blob = new Blob([response.data], { type: "text/csv;charset=utf-8;" });
       const timestamp = new Date().toISOString().slice(0, 10);
       downloadFile(blob, `Relatorio-TaggyGreen-Frota-${timestamp}.csv`);
     } catch (err) {

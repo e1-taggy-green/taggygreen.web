@@ -55,20 +55,22 @@ class DashboardErrorBoundary extends React.Component {
  * B2B DASHBOARD PAGE
  * Gestão de Frotas e ESG - Relatórios e performance
  */
+// Email padrão do usuário demo B2B (cadastrado no seed do backend)
+const DEFAULT_B2B_EMAIL = 'teste.b2b@taggy.com';
+
 function DashboardB2BContent() {
   const navigate = useNavigate();
   const [tab, setTab] = useState("esg");
   const [periodo, setPeriodo] = useState("Abril/2026");
-  const { rankingData, categoryPerformance, loading: perfLoading } = usePerformanceData();
+  const { rankingData, categoryPerformance, loading: perfLoading } = usePerformanceData(DEFAULT_B2B_EMAIL);
   const [esgSummary, setEsgSummary] = useState(null);
   const [topVeiculos, setTopVeiculos] = useState([]);
 
   // Efeito para buscar os dados reais das rotas do backend
   useEffect(() => {
-    const email = "contato@empresa.com"; // Email de teste - idealmente viria do Contexto de Auth
     if (tab === "esg") {
-      b2bService.getRelatorioESG(email).then(res => setEsgSummary(res.data)).catch(console.error);
-      b2bService.getRankingFrota(email).then(res => setTopVeiculos(res.data)).catch(console.error);
+      b2bService.getRelatorioESG(DEFAULT_B2B_EMAIL).then(res => setEsgSummary(res.data)).catch(console.error);
+      b2bService.getRankingFrota(DEFAULT_B2B_EMAIL).then(res => setTopVeiculos(res.data)).catch(console.error);
     }
   }, [tab, periodo]);
 
@@ -144,7 +146,7 @@ function DashboardB2BContent() {
                 <MetricCard icon={<Clock size={20} />} label="Tempo Otimizado"      value={esgSummary ? Math.round(esgSummary.tempo_economizado_minutos / 60).toLocaleString() : "142"}   unit="hrs"   change="Atualizado"        bg="bg-amber-50"/>
                 <MetricCard icon={<Car size={20} />} label="Frota Total"          value={esgSummary?.frota_total?.toLocaleString() || "1.000"} unit="veíc." change="Veículos ativos"        bg="bg-teal-50"/>
                 <MetricCard icon={<Coins size={20} />} label="R$ Economizado"       value={esgSummary?.economia_financeira?.toLocaleString(undefined, {maximumFractionDigits: 2}) || "18.450"} unit="R$"   change="Estimativa real"          bg="bg-purple-50"/>
-                <MetricCard icon={<Activity size={20} />} label="ROI"                  value={esgSummary?.roi?.toLocaleString() || "285"}   unit="%"     change="Excelente performance"  bg="bg-red-50"/>
+                <MetricCard icon={<Activity size={20} />} label="ROI"                  value={esgSummary?.roi_percentual?.toLocaleString(undefined, {maximumFractionDigits: 1}) || "285"}   unit="%"     change="Excelente performance"  bg="bg-red-50"/>
               </div>
 
               {/* GHG */}

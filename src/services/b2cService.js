@@ -6,19 +6,19 @@ import api from './api';
 export const b2cService = {
   // --- Dashboard B2C ---
   
-  getUser: () => api.get('/b2c/user'),
+  getUser: (email) => api.get('/api/v1/b2c/user', { params: { email } }),
   
-  getUserRastroHistorico: () => api.get('/b2c/user/rastro-historico'),
+  getUserRastroHistorico: (email) => api.get('/api/v1/b2c/user/rastro-historico', { params: { email } }),
   
-  getUserExtrato: () => api.get('/b2c/user/extrato'),
+  getUserExtrato: (email, limit) => api.get('/api/v1/b2c/user/extrato', { params: { email, limit } }),
   
-  getDestaqueMP: () => api.get('/b2c/marketplace/destaques'),
+  getDestaqueMP: () => api.get('/api/v1/b2c/marketplace/destaques'),
 
   // --- Marketplace B2C ---
   
   // Recebe a página atual como parâmetro para paginação (default = 1)
-  getProdutosMP: (page = 1) => api.get('/b2c/marketplace/produtos', { params: { page } }),
+  getProdutosMP: (page = 1) => api.get('/api/v1/b2c/marketplace/produtos', { params: { page } }),
   
   // Envia os dados da transação para o back-end processar
-  updateSaldo: (dadosCompra) => api.post('/b2c/marketplace/update-saldo', dadosCompra),
+  updateSaldo: (dadosCompra) => api.post('/api/v1/b2c/marketplace/update-saldo', dadosCompra),
 };

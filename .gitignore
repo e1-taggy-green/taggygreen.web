@@ -25,3 +25,9 @@ dist-ssr
 
 # Arquivo mac
 *.DS_Store
+
+# Ambientes
+.env
+.env.production
+.env.development
+*.local

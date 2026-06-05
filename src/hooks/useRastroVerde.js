@@ -3,11 +3,16 @@ import { b2cService } from '../services/b2cService';
 
 /**
  * Hook que centraliza os fetches da tela Meu Rastro Verde.
- * Consome os endpoints reais:
+ * Consome os endpoints reais do backend:
  *   GET /api/v1/b2c/user/rastro-historico
  *     → array de { mes: string, co2_economizado: number }
  *   GET /api/v1/b2c/user/extrato
  *     → array de { nome: string, data: string, registro_economia: number }
+ *   GET /api/v1/b2c/user/equivalencias
+ *     → { arvores, combustivel_litros, horas_led, co2_total_kg }
+ *
+ * IMPORTANTE: as equivalências (árvores, combustível em litros e horas de LED)
+ * NÃO são mais calculadas no front. Todos os valores vêm prontos do backend.
  */
 export function useRastroVerde(filtro = '4meses') {
   const [historico, setHistorico] = useState([]);
@@ -21,9 +26,10 @@ export function useRastroVerde(filtro = '4meses') {
     setError(null);
 
     try {
-      const [resHistorico, resExtrato] = await Promise.all([
+      const [resHistorico, resExtrato, resEquivalencias] = await Promise.all([
         b2cService.getUserRastroHistorico(),
         b2cService.getUserExtrato(),
+        b2cService.getUserEquivalencias(),
       ]);
 
       // Contrato: array de { mes, co2_economizado }
@@ -35,17 +41,17 @@ export function useRastroVerde(filtro = '4meses') {
         kg: item.co2_economizado ?? 0,
       }));
 
-      // Soma total de CO₂ do período
-      const co2Total = historicoNorm.reduce((acc, item) => acc + item.kg, 0);
-
       setHistorico(historicoNorm);
 
-      // Monta objeto rastro com os cálculos de equivalência
+      // Equivalências calculadas pelo backend (sem nenhuma conta no front).
+      // Contrato: { arvores, combustivel_litros, horas_led, co2_total_kg }
+      const eq = resEquivalencias.data ?? {};
+
       setRastro({
-        co2_evitado: co2Total,
-        arvores_equivalentes: Math.floor(co2Total / 15),
-        litros_agua: Math.round(co2Total * 20),
-        horas_vento: Math.round(co2Total * 8.5),
+        co2_evitado: eq.co2_total_kg ?? 0,
+        arvores: eq.arvores ?? 0,
+        combustivel_litros: eq.combustivel_litros ?? 0,
+        horas_led: eq.horas_led ?? 0,
       });
 
       // Contrato extrato: array de { nome, data, registro_economia }

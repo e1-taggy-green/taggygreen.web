@@ -39,14 +39,11 @@ function ProdutoCard({ produto, onResgatar, resgatando }) {
 
       <div className="p-4 flex flex-col flex-1">
         <h3 className="font-bold text-gray-900 text-sm mb-1 line-clamp-2">{produto.nome}</h3>
-        {produto.descricao && (
-          <p className="text-xs text-gray-400 mb-3 line-clamp-2">{produto.descricao}</p>
-        )}
         <div className="mt-auto">
           <div className="flex items-center gap-1 mb-3">
             <Coins size={14} className="text-green-600" />
             <span className="text-sm font-black text-green-700">
-              {(produto.custo_pontos_carbono ?? produto.pontos_custo ?? 0).toLocaleString("pt-BR")} pts
+              {(produto.pontos_custo ?? 0).toLocaleString("pt-BR")} pts
             </span>
           </div>
           <button
@@ -64,7 +61,7 @@ function ProdutoCard({ produto, onResgatar, resgatando }) {
 
 export default function MarketplacePage() {
   const navigate = useNavigate();
-  const { userName, userId, userPoints, debitarPontos } = useUser();
+  const { userEmail, userPoints, atualizarSaldo } = useUser();
   const { addToast } = useToast();
 
   const [produtos, setProdutos]       = useState([]);
@@ -93,19 +90,19 @@ export default function MarketplacePage() {
   useEffect(() => { fetchProdutos(1); }, [fetchProdutos]);
 
   const handleResgatar = async (produto) => {
-    if (!userId) {
+    if (!userEmail) {
       addToast("Usuário não identificado. Tente recarregar a página.", "error");
       return;
     }
 
-    const custo = produto.custo_pontos_carbono ?? produto.pontos_custo ?? 0;
+    const custo = produto.pontos_custo ?? 0;
 
     setResgatando(produto.id);
     try {
-      const res = await b2cService.resgatar(userId, produto.id);
-      const pontos = res.data?.pontos_debitados ?? custo;
-      debitarPontos(pontos);
-      addToast(`Resgate realizado! Você usou ${pontos.toLocaleString("pt-BR")} pontos.`, "success");
+      const res = await b2cService.resgatar(userEmail, produto.id);
+      // Backend retorna o saldo ABSOLUTO já atualizado.
+      atualizarSaldo(res.data?.saldo_atualizado);
+      addToast(`Resgate realizado! Você usou ${custo.toLocaleString("pt-BR")} pontos.`, "success");
     } catch (err) {
       const status = err?.response?.status;
       if (status === 422 || status === 400) {

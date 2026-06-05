@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Nav, Footer } from "../../../components/shared";
-import { Coins, ShoppingBag, Lightbulb, Leaf } from "lucide-react";
+import { Coins, ShoppingBag, Lightbulb } from "lucide-react";
 import { b2cService } from "../../../services/b2cService";
 import { useUser } from "../../../contexts/UserContext";
 import { useToast } from "../../../contexts/ToastContext";
@@ -30,11 +30,14 @@ function SkeletonCard() {
 function ProdutoCard({ produto, onResgatar, resgatando }) {
   return (
     <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col">
-      {/* Imagem ou placeholder */}
-      <div className="h-40 bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center flex-shrink-0">
-        <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-sm">
-          <Leaf size={32} className="text-green-500" />
-        </div>
+      {/* Imagem do produto resolvida pelo ID */}
+      <div className="h-40 bg-gradient-to-br from-green-50 to-green-100 overflow-hidden flex-shrink-0 flex items-center justify-center">
+        <img
+          src={`/produtos/${produto.id}.jpeg`}
+          alt={produto.nome}
+          className="w-full h-full object-cover"
+          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+        />
       </div>
 
       <div className="p-4 flex flex-col flex-1">

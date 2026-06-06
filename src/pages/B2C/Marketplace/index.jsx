@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Nav, Footer } from "../../../components/shared";
-import { Coins, ShoppingBag, Lightbulb, Leaf } from "lucide-react";
+import { Coins, ShoppingBag, Lightbulb } from "lucide-react";
 import { b2cService } from "../../../services/b2cService";
 import { useUser } from "../../../contexts/UserContext";
 import { useToast } from "../../../contexts/ToastContext";
@@ -30,23 +30,23 @@ function SkeletonCard() {
 function ProdutoCard({ produto, onResgatar, resgatando }) {
   return (
     <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col">
-      {/* Imagem ou placeholder */}
-      <div className="h-40 bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center flex-shrink-0">
-        <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-sm">
-          <Leaf size={32} className="text-green-500" />
-        </div>
+      {/* Imagem do produto resolvida pelo ID */}
+      <div className="h-40 bg-gradient-to-br from-green-50 to-green-100 overflow-hidden flex-shrink-0 flex items-center justify-center">
+        <img
+          src={`/produtos/${produto.id}.jpeg`}
+          alt={produto.nome}
+          className="w-full h-full object-cover"
+          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+        />
       </div>
 
       <div className="p-4 flex flex-col flex-1">
         <h3 className="font-bold text-gray-900 text-sm mb-1 line-clamp-2">{produto.nome}</h3>
-        {produto.descricao && (
-          <p className="text-xs text-gray-400 mb-3 line-clamp-2">{produto.descricao}</p>
-        )}
         <div className="mt-auto">
           <div className="flex items-center gap-1 mb-3">
             <Coins size={14} className="text-green-600" />
             <span className="text-sm font-black text-green-700">
-              {(produto.custo_pontos_carbono ?? produto.pontos_custo ?? 0).toLocaleString("pt-BR")} pts
+              {(produto.pontos_custo ?? 0).toLocaleString("pt-BR")} pts
             </span>
           </div>
           <button
@@ -64,7 +64,7 @@ function ProdutoCard({ produto, onResgatar, resgatando }) {
 
 export default function MarketplacePage() {
   const navigate = useNavigate();
-  const { userName, userId, userPoints, debitarPontos } = useUser();
+  const { userEmail, userPoints, atualizarSaldo } = useUser();
   const { addToast } = useToast();
 
   const [produtos, setProdutos]       = useState([]);
@@ -93,19 +93,19 @@ export default function MarketplacePage() {
   useEffect(() => { fetchProdutos(1); }, [fetchProdutos]);
 
   const handleResgatar = async (produto) => {
-    if (!userId) {
+    if (!userEmail) {
       addToast("Usuário não identificado. Tente recarregar a página.", "error");
       return;
     }
 
-    const custo = produto.custo_pontos_carbono ?? produto.pontos_custo ?? 0;
+    const custo = produto.pontos_custo ?? 0;
 
     setResgatando(produto.id);
     try {
-      const res = await b2cService.resgatar(userId, produto.id);
-      const pontos = res.data?.pontos_debitados ?? custo;
-      debitarPontos(pontos);
-      addToast(`Resgate realizado! Você usou ${pontos.toLocaleString("pt-BR")} pontos.`, "success");
+      const res = await b2cService.resgatar(userEmail, produto.id);
+      // Backend retorna o saldo ABSOLUTO já atualizado.
+      atualizarSaldo(res.data?.saldo_atualizado);
+      addToast(`Resgate realizado! Você usou ${custo.toLocaleString("pt-BR")} pontos.`, "success");
     } catch (err) {
       const status = err?.response?.status;
       if (status === 422 || status === 400) {

@@ -137,9 +137,9 @@ function TabMeuRastro() {
       {!loading && !error && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
           {[
-            { bg: "bg-green-50",  border: "border-green-200",  icon: <TreePine size={20} className="text-green-600" />, label: "Árvore absorve 10–20 kg de CO₂ por ano.",                            valor: `${rastro?.arvores_equivalentes ?? 0} Árvores`   },
-            { bg: "bg-orange-50", border: "border-orange-200", icon: <Car      size={20} className="text-orange-500" />, label: "De um carro à gasolina comum, poupando combustível e fumaça.",       valor: `${Math.round((rastro?.co2_evitado ?? 0) * 0.42)} L poupados` },
-            { bg: "bg-yellow-50", border: "border-yellow-200", icon: <Wind     size={20} className="text-yellow-500" />, label: "Equivalente à energia gasta para deixar 10 lâmpadas de LED acesas.", valor: `${rastro?.horas_vento ?? 0}h de luz`  },
+            { bg: "bg-green-50",  border: "border-green-200",  icon: <TreePine size={20} className="text-green-600" />, label: "Árvore absorve 10–20 kg de CO₂ por ano.",                            valor: `${rastro?.arvores ?? 0} Árvores`   },
+            { bg: "bg-orange-50", border: "border-orange-200", icon: <Car      size={20} className="text-orange-500" />, label: "De um carro à gasolina comum, poupando combustível e fumaça.",       valor: `${rastro?.combustivel_litros ?? 0} L poupados` },
+            { bg: "bg-yellow-50", border: "border-yellow-200", icon: <Wind     size={20} className="text-yellow-500" />, label: "Equivalente à energia gasta para deixar 10 lâmpadas de LED acesas.", valor: `${rastro?.horas_led ?? 0}h de luz`  },
           ].map((eq, i) => (
             <div key={i} className={`${eq.bg} border ${eq.border} rounded-2xl p-4 sm:p-5 flex sm:flex-col flex-row items-center sm:items-start gap-3 sm:gap-2`}>
               <div className="w-9 h-9 bg-white rounded-xl flex items-center justify-center shadow-sm flex-shrink-0">{eq.icon}</div>
@@ -261,7 +261,7 @@ function TabResumo({ userPoints }) {
           <div className="text-xs text-gray-500 font-semibold mb-1">Combustível Economizado</div>
           <div className="flex items-baseline gap-1">
             <span className="text-2xl sm:text-3xl font-black text-gray-900" style={{fontFamily:"'Syne',sans-serif"}}>
-              {loading ? "—" : Math.round((rastro?.co2_evitado ?? 0) * 0.42)}
+              {loading ? "—" : rastro?.combustivel_litros ?? 0}
             </span>
             <span className="text-gray-400 font-semibold">L</span>
           </div>
@@ -271,7 +271,7 @@ function TabResumo({ userPoints }) {
           <div className="text-xs text-gray-500 font-semibold mb-1">Árvores Equivalentes</div>
           <div className="flex items-baseline gap-1">
             <span className="text-2xl sm:text-3xl font-black text-gray-900" style={{fontFamily:"'Syne',sans-serif"}}>
-              {loading ? "—" : rastro?.arvores_equivalentes ?? 0}
+              {loading ? "—" : rastro?.arvores ?? 0}
             </span>
             <span className="text-gray-400 font-semibold">árv.</span>
           </div>

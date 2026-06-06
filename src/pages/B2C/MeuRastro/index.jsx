@@ -185,11 +185,8 @@ export default function MeuRastroVerde() {
   const { historico, extrato, rastro, loading, error, refetch } =
     useRastroVerde(filtro);
 
-  // Calcula valores derivados para o conversor
-  const combustivelEconomizado = rastro
-    ? Math.round(rastro.co2_evitado * 0.42)
-    : 0;
-  const horasLed = rastro ? Math.round(rastro.co2_evitado * 8.5) : 0;
+  // Equivalências vêm prontas do backend (/api/v1/b2c/user/equivalencias):
+  // rastro.arvores, rastro.combustivel_litros e rastro.horas_led.
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -290,9 +287,9 @@ export default function MeuRastroVerde() {
             </div>
           ) : !error && rastro ? (
             <ConversorImpacto
-              arvores={rastro.arvores_equivalentes}
-              combustivel={combustivelEconomizado}
-              horasLed={horasLed}
+              arvores={rastro.arvores}
+              combustivel={rastro.combustivel_litros}
+              horasLed={rastro.horas_led}
             />
           ) : null}
 

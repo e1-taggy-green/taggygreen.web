@@ -31,8 +31,13 @@ export function ToastProvider({ children }) {
 
   const addToast = useCallback((message, type = "info", duration = 5000) => {
     const id = Date.now() + Math.random();
-    setToasts((prev) => [...prev.slice(-2), { id, message, type }]); // máx 3 toasts
-    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), duration);
+    setToasts((prev) => {
+      if (prev.some((t) => t.message === message)) {
+        return prev;
+      }
+      setTimeout(() => setToasts((current) => current.filter((t) => t.id !== id)), duration);
+      return [...prev.slice(-2), { id, message, type }];
+    });
   }, []);
 
   const removeToast = useCallback((id) => {

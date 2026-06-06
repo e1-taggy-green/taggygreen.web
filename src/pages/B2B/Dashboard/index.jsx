@@ -20,43 +20,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { b2bService } from "../../../services/b2bService";
-
-class DashboardErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false, errorMessage: "" };
-  }
-  static getDerivedStateFromError(error) {
-    return { hasError: true, errorMessage: error.toString() };
-  }
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-          <div className="bg-white p-8 rounded-2xl border border-red-200 shadow-sm max-w-2xl w-full">
-            <h1 className="text-2xl font-bold text-red-600 mb-4 flex items-center gap-2">
-              <AlertTriangle size={28} /> Ops! Algo quebrou a tela.
-            </h1>
-            <p className="text-gray-700 mb-4">
-              Um erro inesperado aconteceu ao desenhar os componentes.
-            </p>
-            <pre className="bg-red-50 p-4 rounded-xl text-red-800 font-mono text-sm overflow-auto whitespace-pre-wrap">
-              {this.state.errorMessage}
-            </pre>
-          </div>
-        </div>
-      );
-    }
-    return this.props.children;
-  }
-}
-
-/**
- * B2B DASHBOARD PAGE
- * Gestão de Frotas e ESG - Relatórios e performance
- */
-// Email padrão do usuário demo B2B (cadastrado no seed do backend)
-const DEFAULT_B2B_EMAIL = 'teste.b2b@taggy.com';
+import { DEFAULT_B2B_EMAIL } from "../../../config";
 
 function DashboardB2BContent() {
   const navigate = useNavigate();
@@ -107,7 +71,7 @@ function DashboardB2BContent() {
               </button>
               {/* Baixar PDF — Front-end nativo */}
               <button
-                onClick={exportPDF}
+                onClick={() => exportPDF(esgSummary)}
                 disabled={exportLoading}
                 className="flex items-center gap-1.5 text-xs font-semibold border border-gray-300 rounded-xl px-4 py-2 hover:border-red-500 hover:text-red-700 hover:bg-red-50 transition-all disabled:opacity-50"
               >
@@ -227,9 +191,5 @@ function DashboardB2BContent() {
 }
 
 export default function DashboardB2B() {
-  return (
-    <DashboardErrorBoundary>
-      <DashboardB2BContent />
-    </DashboardErrorBoundary>
-  );
+  return <DashboardB2BContent />;
 }

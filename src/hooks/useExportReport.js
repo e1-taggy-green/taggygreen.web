@@ -3,6 +3,7 @@ import { toPng } from "html-to-image";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import { b2bService } from "../services/b2bService";
+import { DEFAULT_B2B_EMAIL } from "../config";
 
 export function useExportReport({ showSpinner, hideSpinner } = {}) {
   const [loading, setLoading] = useState(false);
@@ -19,7 +20,7 @@ export function useExportReport({ showSpinner, hideSpinner } = {}) {
     URL.revokeObjectURL(url);
   };
 
-  const exportPDF = async () => {
+  const exportPDF = async (esgData) => {
     try {
       setLoading(true);
       setError(null);
@@ -47,16 +48,25 @@ export function useExportReport({ showSpinner, hideSpinner } = {}) {
       doc.setTextColor(40, 40, 40);
       doc.text("1. Resumo de Sustentabilidade", 14, 50);
 
+      // Usa dados reais do esgSummary quando disponíveis, senão fallback
+      const co2 = esgData?.co2_evitado_kg?.toLocaleString(undefined, { maximumFractionDigits: 1 }) ?? "—";
+      const combustivel = esgData?.combustivel_evitado_litros?.toLocaleString(undefined, { maximumFractionDigits: 1 }) ?? "—";
+      const tempo = esgData ? Math.round(esgData.tempo_economizado_minutos / 60).toLocaleString() : "—";
+      const economia = esgData?.economia_financeira?.toLocaleString(undefined, { maximumFractionDigits: 2 }) ?? "—";
+      const roi = esgData?.roi_percentual?.toLocaleString(undefined, { maximumFractionDigits: 1 }) ?? "—";
+      const frota = esgData?.frota_total?.toLocaleString() ?? "—";
+
       autoTable(doc, {
         startY: 55,
         theme: "grid",
         headStyles: { fillColor: [34, 197, 94] },
         head: [["Indicador", "Valor", "Unidade", "Detalhe (GHG Protocol)"]],
         body: [
-          ["CO2 Evitado", "4.375", "kg", "Certificado Escopo 1 e 3"],
-          ["Combustível Poupado", "1.470", "L", "Certificado"],
-          ["Tempo Otimizado", "142", "hrs", "+5% eficiência de rotas"],
-          ["Economia Financeira", "18.450", "R$", "ROI Auditável: 285%"],
+          ["CO₂ Evitado", co2, "kg", "Certificado Escopo 1 e 3"],
+          ["Combustível Poupado", combustivel, "L", "Certificado"],
+          ["Tempo Otimizado", tempo, "hrs", "Eficiência de rotas"],
+          ["Frota Total", frota, "veíc.", "Veículos ativos"],
+          ["Economia Financeira", economia, "R$", `ROI Auditável: ${roi}%`],
         ],
       });
 
@@ -75,7 +85,7 @@ export function useExportReport({ showSpinner, hideSpinner } = {}) {
         finalY = finalY + imgHeight + 20;
       }
 
-      // 3. Detalhamento — apenas Carros e Caminhões
+      // 3. Detalhamento
       doc.setFontSize(14);
       doc.setFont("helvetica", "bold");
       doc.text("3. Detalhamento Operacional", 14, finalY);
@@ -84,7 +94,7 @@ export function useExportReport({ showSpinner, hideSpinner } = {}) {
         startY: finalY + 5,
         theme: "striped",
         headStyles: { fillColor: [59, 130, 246] },
-        head: [["Categoria", "Veículos", "Passagens", "CO2 Evitado"]],
+        head: [["Categoria", "Veículos", "Passagens", "CO₂ Evitado"]],
         body: [
           ["Carros", "620", "4.820", "2.140 kg"],
           ["Caminhões", "240", "1.230", "1.850 kg"],
@@ -119,8 +129,7 @@ export function useExportReport({ showSpinner, hideSpinner } = {}) {
       if (showSpinner) showSpinner("Exportando CSV...");
 
       // Chama a API real para gerar o CSV com dados do banco
-      const email = 'teste.b2b@taggy.com';
-      const response = await b2bService.getRelatorioESG_csv(email);
+      const response = await b2bService.getRelatorioESG_csv(DEFAULT_B2B_EMAIL);
 
       const blob = new Blob([response.data], { type: "text/csv;charset=utf-8;" });
       const timestamp = new Date().toISOString().slice(0, 10);

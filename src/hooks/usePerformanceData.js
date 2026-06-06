@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { b2bService } from "../services/b2bService";
+import { DEFAULT_B2B_EMAIL } from "../config";
 
 // Email padrão do usuário demo B2B (cadastrado no seed do backend)
-const DEFAULT_B2B_EMAIL = 'teste.b2b@taggy.com';
 
 /**
  * Hook para buscar dados de performance da frota (ranking e performance por categoria)

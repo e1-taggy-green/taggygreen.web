@@ -70,7 +70,6 @@ function DashboardB2BContent() {
   useEffect(() => {
     if (tab === "esg") {
       b2bService.getRelatorioESG(DEFAULT_B2B_EMAIL).then(res => setEsgSummary(res.data)).catch(console.error);
-      b2bService.getRankingFrota(DEFAULT_B2B_EMAIL).then(res => setTopVeiculos(res.data)).catch(console.error);
     }
   }, [tab]);
 

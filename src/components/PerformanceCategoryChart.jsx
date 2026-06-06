@@ -4,6 +4,12 @@ import {
   Tooltip, Legend, ResponsiveContainer,
 } from "recharts";
 
+const MESES_ABREV = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+function getMesAtualAbrev() {
+  const agora = new Date();
+  return `${MESES_ABREV[agora.getMonth()]}/${agora.getFullYear()}`;
+}
+
 export function PerformanceCategoryChart({ data }) {
   const [filtro, setFiltro] = useState("todos");
 
@@ -66,7 +72,7 @@ export function PerformanceCategoryChart({ data }) {
             </button>
           ))}
           <span className="text-xs bg-gray-100 text-gray-600 font-bold px-2 py-0.5 rounded-full">
-            Abr/2026
+            {getMesAtualAbrev()}
           </span>
         </div>
       </div>

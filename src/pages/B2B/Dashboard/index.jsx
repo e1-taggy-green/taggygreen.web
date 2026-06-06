@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { Nav, Footer, MetricCard } from "../../../components/shared";
 import { usePerformanceData } from "../../../hooks/usePerformanceData";
 import { PerformanceCategoryChart } from "../../../components/PerformanceCategoryChart";
@@ -8,7 +7,6 @@ import { useExportReport } from "../../../hooks/useExportReport";
 import { useSpinner } from "../../../contexts/SpinnerContext";
 import {
   LayoutDashboard,
-  Calculator,
   FileText,
   Activity,
   Leaf,
@@ -59,9 +57,7 @@ class DashboardErrorBoundary extends React.Component {
 const DEFAULT_B2B_EMAIL = 'teste.b2b@taggy.com';
 
 function DashboardB2BContent() {
-  const navigate = useNavigate();
   const [tab, setTab] = useState("esg");
-  const [periodo, setPeriodo] = useState("Abril/2026");
   const { rankingData, categoryPerformance, loading: perfLoading } = usePerformanceData(DEFAULT_B2B_EMAIL);
   const [esgSummary, setEsgSummary] = useState(null);
   const { showSpinner, hideSpinner } = useSpinner();
@@ -70,7 +66,6 @@ function DashboardB2BContent() {
   useEffect(() => {
     if (tab === "esg") {
       b2bService.getRelatorioESG(DEFAULT_B2B_EMAIL).then(res => setEsgSummary(res.data)).catch(console.error);
-      b2bService.getRankingFrota(DEFAULT_B2B_EMAIL).then(res => setTopVeiculos(res.data)).catch(console.error);
     }
   }, [tab]);
 
@@ -114,12 +109,6 @@ function DashboardB2BContent() {
               >
                 {exportLoading ? "Gerando..." : "Baixar PDF Auditável"}
               </button>
-              <button
-                onClick={() => navigate("/b2b/simulador")}
-                className="flex items-center gap-1.5 text-xs font-bold bg-green-500 text-white rounded-xl px-4 py-2 hover:bg-green-600 transition-all shadow-md shadow-green-100"
-              >
-                <Calculator size={14} /> Simulador
-              </button>
             </div>
           </div>
           <div className="flex gap-0 overflow-x-auto scrollbar-hide">
@@ -147,7 +136,7 @@ function DashboardB2BContent() {
       </div>
 
       {/* CONTENT */}
-      <div className="flex-1 bg-gray-50 px-6 py-7">
+      <div className="flex-1 bg-gray-50 px-4 sm:px-6 py-5 sm:py-7">
         <div className="max-w-6xl mx-auto">
 
           {/* ESG TAB */}
@@ -162,8 +151,8 @@ function DashboardB2BContent() {
                 </div>
               </div>
 
-              {/* 6 metrics */}
-              <div className="grid grid-cols-3 gap-4">
+              {/* 6 metrics — 1 col mobile, 2 sm, 3 lg */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                 <MetricCard icon={<Leaf size={20} />} label="CO₂ Evitado"         value={esgSummary?.co2_evitado_kg?.toLocaleString(undefined, {maximumFractionDigits: 1}) || "4.375"} unit="kg"    change="Atualizado" bg="bg-green-50"/>
                 <MetricCard icon={<Fuel size={20} />} label="Combustível Poupado"  value={esgSummary?.combustivel_evitado_litros?.toLocaleString(undefined, {maximumFractionDigits: 1}) || "1.470"} unit="L"     change="Atualizado"  bg="bg-blue-50"/>
                 <MetricCard icon={<Clock size={20} />} label="Tempo Otimizado"      value={esgSummary ? Math.round(esgSummary.tempo_economizado_minutos / 60).toLocaleString() : "142"}   unit="hrs"   change="Atualizado"        bg="bg-amber-50"/>
@@ -173,7 +162,7 @@ function DashboardB2BContent() {
               </div>
 
               {/* GHG */}
-              <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5 flex items-center gap-4">
+              <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
                 <div className="text-3xl flex-shrink-0 text-blue-500">
                   <BadgeCheck size={32} />
                 </div>
@@ -181,7 +170,7 @@ function DashboardB2BContent() {
                   <div className="font-bold text-blue-900 mb-1">
                     Dados Certificados — GHG Protocol
                   </div>
-                  <div className="text-sm text-blue-700 leading-relaxed">
+                  <div className="text-xs sm:text-sm text-blue-700 leading-relaxed">
                     Todos os cálculos estão em conformidade com as diretrizes
                     do GHG Protocol para emissões de escopo 1 e 3. Utilize os
                     botões de exportação para baixar o documento completo.

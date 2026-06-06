@@ -272,6 +272,29 @@ export default function SimuladorPage() {
               </button>
             </div>
           </form>
+
+          {/* Aviso de privacidade / LGPD */}
+          <div className="mt-5 bg-blue-50 border border-blue-200 rounded-2xl p-4 sm:p-5 flex items-start gap-3">
+            <div className="flex-shrink-0 mt-0.5">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+            </div>
+            <div>
+              <p className="text-sm font-bold text-blue-900 mb-1">Privacidade e uso de dados</p>
+              <p className="text-xs text-blue-700 leading-relaxed">
+                Ao clicar em <strong>"Simular Economia"</strong>, você concorda que os dados informados
+                (nome, e-mail, telefone e dados da frota) serão armazenados pela <strong>Edenred TaggyGreen</strong> com
+                a finalidade exclusiva de calcular o impacto sustentável da sua frota e entrar em contato
+                sobre nossas soluções. Nenhum dado é compartilhado com terceiros sem o seu consentimento.
+                O tratamento segue as diretrizes da <strong>Lei Geral de Proteção de Dados (LGPD — Lei nº 13.709/2018)</strong>.
+                Para exercer seus direitos de acesso, correção ou exclusão, entre em contato pelo{" "}
+                <a href="mailto:privacidade@taggygreen.com.br" className="underline hover:text-blue-900 transition-colors">
+                  privacidade@taggygreen.com.br
+                </a>.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 

@@ -6,7 +6,7 @@ import { usePerformanceData } from "../../../hooks/usePerformanceData";
 
 export default function PerformanceAnalysis() {
   const { rankingData, categoryPerformance, loading } = usePerformanceData();
-  const [periodo, setPeriodo] = useState("Abril/2026");
+  const [periodo, setPeriodo] = useState("Junho/2026");
 
   return (
     <div className="min-h-screen bg-white flex flex-col">

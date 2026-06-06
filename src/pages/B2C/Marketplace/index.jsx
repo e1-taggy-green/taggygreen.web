@@ -79,7 +79,7 @@ function ProdutoCard({ produto, onResgatar, resgatando }) {
 
 export default function MarketplacePage() {
   const navigate = useNavigate();
-  const { userId, userPoints, debitarPontos } = useUser();
+  const { userEmail, userPoints, atualizarSaldo } = useUser();
   const { addToast } = useToast();
 
   const [produtos, setProdutos]       = useState([]);
@@ -108,7 +108,7 @@ export default function MarketplacePage() {
   useEffect(() => { fetchProdutos(1); }, [fetchProdutos]);
 
   const handleResgatar = async (produto) => {
-    if (!userId) {
+    if (!userEmail) {
       addToast("Usuário não identificado. Tente recarregar a página.", "error");
       return;
     }
@@ -117,9 +117,9 @@ export default function MarketplacePage() {
 
     setResgatando(produto.id);
     try {
-      const res = await b2cService.resgatar(userId, produto.id);
+      const res = await b2cService.resgatar(userEmail, produto.id);
       // Debita os pontos localmente para feedback imediato
-      debitarPontos(custo);
+      atualizarSaldo(res.data?.saldo_atualizado);
       addToast(`Resgate realizado! Você usou ${custo.toLocaleString("pt-BR")} pontos.`, "success");
     } catch (err) {
       const status = err?.response?.status;

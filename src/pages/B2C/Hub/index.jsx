@@ -3,18 +3,31 @@ import { useNavigate } from "react-router-dom";
 import { Nav, Footer, Progress } from "../../../components/shared";
 import {
   Coins, Leaf, Fuel, MapPin, Star, BadgeCheck, Car, TreePine, Wind, AlertTriangle,
+  ShoppingBag, ArrowRight,
 } from "lucide-react";
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from "recharts";
 import { useRastroVerde } from "../../../hooks/useRastroVerde";
 import { useUser } from "../../../contexts/UserContext";
+import { b2cService } from "../../../services/b2cService";
+import { useToast } from "../../../contexts/ToastContext";
 
 const FATOR_ARVORE = 15;
 
+// Mês atual em pt-BR — formato "Junho/2026"
+const MESES_PT_BR = [
+  "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+  "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
+];
+function getMesAtualLabel() {
+  const agora = new Date();
+  return `${MESES_PT_BR[agora.getMonth()]}/${agora.getFullYear()}`;
+}
+
 export function calcularEquivalencia(totalKg) {
   const arvores = Math.floor(totalKg / FATOR_ARVORE);
-  const restoKg = parseFloat((totalKg % FATOR_ARVORE).toFixed(1));
+  const restoKg = Math.round(totalKg % FATOR_ARVORE);
   if (arvores >= 1) return { arvores, restoKg, mensagem: `Você mitigou o equivalente a ${arvores} ${arvores === 1 ? "Árvore plantada" : "Árvores plantadas"} esse ano!` };
   if (totalKg >= 10) return { arvores: 0, restoKg: totalKg, mensagem: `Você ajudou a limpar o ar de ${Math.ceil(totalKg / 0.8)} quadras` };
   if (totalKg >= 5)  return { arvores: 0, restoKg: totalKg, mensagem: "Você compensou o equivalente a 500 respirações limpas" };
@@ -27,7 +40,7 @@ function CustomTooltip({ active, payload, label }) {
     return (
       <div className="bg-white border border-gray-200 rounded-xl px-3 py-2 shadow-md text-sm">
         <p className="font-bold text-gray-600">{label}</p>
-        <p className="text-green-600 font-black">{payload[0].value.toFixed(1).replace(".", ",")} kg CO₂</p>
+        <p className="text-green-600 font-black">{Math.round(payload[0].value)} kg CO₂</p>
       </div>
     );
   }
@@ -43,12 +56,12 @@ function GamificacaoEngine({ totalKgCO2 }) {
         {equiv.mensagem}
       </p>
       <p className="text-green-600 text-xs mt-1 font-semibold">
-        {totalKgCO2.toFixed(1).replace(".", ",")} kg CO₂ mitigados no período
+        {Math.round(totalKgCO2)} kg CO₂ mitigados no período
       </p>
       <div className="mt-4 w-full">
         <div className="flex justify-between text-xs text-gray-500 mb-1.5">
           <span className="font-semibold">Próxima árvore</span>
-          <span>{equiv.restoKg.toFixed(1).replace(".", ",")} / {FATOR_ARVORE} kg</span>
+          <span>{equiv.restoKg} / {FATOR_ARVORE} kg</span>
         </div>
         <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
           <div className="h-full bg-green-500 rounded-full transition-all duration-700" style={{ width: `${pct}%` }} />
@@ -74,6 +87,129 @@ function ExtratoEmpty() {
   );
 }
 
+/**
+ * Destaques do Marketplace — consome GET /api/v1/b2c/marketplace/destaques.
+ * Mostra até 3 produtos em destaque com imagem (/produtos/{id}.jpg).
+ * Clicar em qualquer card ou no "Resgatar" leva ao marketplace completo.
+ */
+function DestaquesMarketplace() {
+  const navigate = useNavigate();
+  const { userEmail, userPoints, atualizarSaldo } = useUser();
+  const { addToast } = useToast();
+  const [destaques,  setDestaques]  = useState([]);
+  const [loading,    setLoading]    = useState(true);
+  const [resgatando, setResgatando] = useState(null); // id do produto em processo
+
+  useEffect(() => {
+    let ativo = true;
+    b2cService.getDestaqueMP()
+      .then((res) => { if (ativo) setDestaques(Array.isArray(res.data) ? res.data.slice(0, 3) : []); })
+      .catch((err) => console.error("Erro ao buscar destaques", err))
+      .finally(() => { if (ativo) setLoading(false); });
+    return () => { ativo = false; };
+  }, []);
+
+  const handleResgatar = async (produto) => {
+    if (!userEmail) { addToast("Usuário não identificado.", "error"); return; }
+    const custo = produto.pontos_custo ?? 0;
+    if ((userPoints ?? 0) < custo) {
+      addToast("Pontos insuficientes para este resgate.", "error");
+      return;
+    }
+    setResgatando(produto.id);
+    try {
+      const res = await b2cService.resgatar(userEmail, produto.id);
+      atualizarSaldo(res.data?.saldo_atualizado);
+      addToast(`Resgate realizado! Você usou ${custo.toLocaleString("pt-BR")} pontos.`, "success");
+    } catch (err) {
+      const msg = err?.response?.data?.detail ?? "Erro ao realizar resgate. Tente novamente.";
+      addToast(msg, "error");
+    } finally {
+      setResgatando(null);
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-5 shadow-sm">
+      <div className="flex items-start sm:items-center justify-between gap-3 mb-3 sm:mb-4 flex-wrap sm:flex-nowrap">
+        <div>
+          <div className="flex items-center gap-2">
+            <ShoppingBag size={18} className="text-green-600" />
+            <span className="font-bold text-gray-800 text-sm sm:text-base">Marketplace Verde</span>
+          </div>
+          <p className="text-xs text-gray-500 mt-0.5">
+            Troque seus pontos de carbono por descontos exclusivos
+          </p>
+        </div>
+        <button
+          onClick={() => navigate("/b2c/marketplace")}
+          className="text-xs sm:text-sm font-bold text-green-600 hover:text-green-700 flex items-center gap-1 whitespace-nowrap"
+        >
+          Ver todas ofertas <ArrowRight size={14} />
+        </button>
+      </div>
+
+      {loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-56 rounded-xl animate-pulse bg-gray-100" />
+          ))}
+        </div>
+      ) : destaques.length === 0 ? (
+        <div className="text-center text-sm text-gray-400 py-6">
+          Nenhum destaque disponível no momento.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+          {destaques.map((produto) => (
+            <div
+              key={produto.id}
+              className="border border-gray-200 rounded-xl overflow-hidden flex flex-col hover:shadow-md transition-shadow"
+            >
+              {/* Imagem — tenta .jpg, depois .jpeg, depois mostra fundo verde */}
+              <div className="h-32 bg-gradient-to-br from-green-50 to-green-100 overflow-hidden flex items-center justify-center">
+                <img
+                  src={`/produtos/${produto.id}.jpg`}
+                  alt={produto.nome}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    if (e.currentTarget.src.endsWith(".jpg")) {
+                      e.currentTarget.src = `/produtos/${produto.id}.jpeg`;
+                    } else {
+                      e.currentTarget.style.display = "none";
+                    }
+                  }}
+                />
+              </div>
+
+              <div className="p-3 sm:p-4 flex-1 flex flex-col">
+                <p className="font-bold text-gray-900 text-sm leading-tight mb-2 line-clamp-2">
+                  {produto.nome}
+                </p>
+                <div className="mt-auto flex items-center justify-between gap-2 pt-2">
+                  <div className="flex items-center gap-1 text-green-700">
+                    <Coins size={14} />
+                    <span className="font-black text-sm">
+                      {(produto.pontos_custo ?? 0).toLocaleString("pt-BR")} pts
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => handleResgatar(produto)}
+                    disabled={resgatando === produto.id}
+                    className="text-xs font-bold bg-green-500 hover:bg-green-600 disabled:opacity-50 text-white rounded-lg px-3 py-1.5 transition-colors"
+                  >
+                    {resgatando === produto.id ? "..." : "Resgatar"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function TabMeuRastro() {
   const { rastro, extrato, historico, loading, error, refetch } = useRastroVerde("mensal");
   const co2Total = rastro?.co2_evitado ?? 0;
@@ -93,7 +229,7 @@ function TabMeuRastro() {
           <div className="flex-1 min-w-0">
             <div className="text-xs font-bold text-green-300 uppercase tracking-widest mb-2 sm:mb-3 flex items-center gap-2">
               <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse flex-shrink-0"></span>
-              <span className="truncate">Economia de Carbono — Abril/2026</span>
+              <span className="truncate">Economia de Carbono — {getMesAtualLabel()}</span>
             </div>
             <div className="flex items-baseline gap-2 mb-2 sm:mb-3 flex-wrap">
               {loading ? (
@@ -101,7 +237,7 @@ function TabMeuRastro() {
               ) : (
                 <>
                   <span className="text-4xl sm:text-6xl font-black text-white leading-none" style={{ fontFamily: "'Syne',sans-serif" }}>
-                    {co2Total.toFixed(1).replace(".", ",")}
+                    {Math.round(co2Total)}
                   </span>
                   <span className="text-lg sm:text-2xl font-bold text-green-300">kg CO₂</span>
                 </>
@@ -182,7 +318,7 @@ function TabMeuRastro() {
                   </div>
                 </div>
                 <div className="text-right flex-shrink-0 ml-2">
-                  <p className="font-bold text-sm text-green-600 whitespace-nowrap">−{item.mitigacao_kg.toFixed(1).replace(".", ",")} kg</p>
+                  <p className="font-bold text-sm text-green-600 whitespace-nowrap">−{Math.round(item.mitigacao_kg)} kg</p>
                   <p className="text-xs text-gray-400">CO₂</p>
                 </div>
               </div>
@@ -210,6 +346,9 @@ function TabMeuRastro() {
           </ResponsiveContainer>
         </div>
       )}
+
+      {/* Marketplace — Destaques (vindos da API /marketplace/destaques) */}
+      <DestaquesMarketplace />
 
       {/* GHG */}
       {!error && (

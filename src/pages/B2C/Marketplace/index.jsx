@@ -14,6 +14,21 @@ const CATEGORIAS = [
   { id: "servicos",    label: "Serviços"      },
 ];
 
+// Mapeamento de ID do produto → categoria.
+// Baseado no seed do backend. Atualizar se novos produtos forem adicionados.
+const CATEGORIA_POR_ID = {
+  1:  "alimentacao", // Voucher iFood R$25
+  2:  "mobilidade",  // Crédito Uber R$10
+  3:  "estilo",      // Ingresso Cinemark
+  4:  "servicos",    // Doação para Projeto de Reflorestamento
+  5:  "estilo",      // 1 Mês de Spotify Premium
+  6:  "mobilidade",  // Desconto de 10% em Postos Shell
+  7:  "servicos",    // Lavagem Ecológica de Veículo
+  8:  "servicos",    // Crédito de Celular R$15
+  9:  "estilo",      // Assinatura de E-book sobre Sustentabilidade
+  10: "estilo",      // Kit de Canudos de Inox
+};
+
 function SkeletonCard() {
   return (
     <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden animate-pulse">
@@ -64,7 +79,7 @@ function ProdutoCard({ produto, onResgatar, resgatando }) {
 
 export default function MarketplacePage() {
   const navigate = useNavigate();
-  const { userId, userPoints, debitarPontos } = useUser();
+  const { userEmail, userPoints, atualizarSaldo } = useUser();
   const { addToast } = useToast();
 
   const [produtos, setProdutos]       = useState([]);
@@ -93,7 +108,7 @@ export default function MarketplacePage() {
   useEffect(() => { fetchProdutos(1); }, [fetchProdutos]);
 
   const handleResgatar = async (produto) => {
-    if (!userId) {
+    if (!userEmail) {
       addToast("Usuário não identificado. Tente recarregar a página.", "error");
       return;
     }
@@ -102,9 +117,9 @@ export default function MarketplacePage() {
 
     setResgatando(produto.id);
     try {
-      const res = await b2cService.resgatar(userId, produto.id);
+      const res = await b2cService.resgatar(userEmail, produto.id);
       // Debita os pontos localmente para feedback imediato
-      debitarPontos(custo);
+      atualizarSaldo(res.data?.saldo_atualizado);
       addToast(`Resgate realizado! Você usou ${custo.toLocaleString("pt-BR")} pontos.`, "success");
     } catch (err) {
       const status = err?.response?.status;
@@ -210,18 +225,29 @@ export default function MarketplacePage() {
               <div className="text-lg font-black text-gray-900 mb-2">Nenhuma oferta disponível</div>
               <p className="text-gray-500 text-sm">Volte em breve para novas recompensas!</p>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-              {produtos.map((p) => (
-                <ProdutoCard
-                  key={p.id}
-                  produto={p}
-                  onResgatar={handleResgatar}
-                  resgatando={resgatando === p.id}
-                />
-              ))}
-            </div>
-          )}
+          ) : (() => {
+            const filtrados = filtro === "all"
+              ? produtos
+              : produtos.filter((p) => CATEGORIA_POR_ID[p.id] === filtro);
+            return filtrados.length === 0 ? (
+              <div className="text-center py-12">
+                <ShoppingBag size={48} className="text-gray-300 mx-auto mb-4" />
+                <div className="text-lg font-black text-gray-900 mb-2">Nenhuma oferta nesta categoria</div>
+                <p className="text-gray-500 text-sm">Tente outro filtro ou veja todas as ofertas.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+                {filtrados.map((p) => (
+                  <ProdutoCard
+                    key={p.id}
+                    produto={p}
+                    onResgatar={handleResgatar}
+                    resgatando={resgatando === p.id}
+                  />
+                ))}
+              </div>
+            );
+          })()}
 
           {/* Paginação */}
           {totalPages > 1 && (

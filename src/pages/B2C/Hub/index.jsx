@@ -318,7 +318,7 @@ function TabMeuRastro() {
                   </div>
                 </div>
                 <div className="text-right flex-shrink-0 ml-2">
-                  <p className="font-bold text-sm text-green-600 whitespace-nowrap">−{Math.round(item.mitigacao_kg)} kg</p>
+                  <p className="font-bold text-sm text-green-600 whitespace-nowrap">−{item.mitigacao_kg.toFixed(2).replace('.', ',')} kg</p>
                   <p className="text-xs text-gray-400">CO₂</p>
                 </div>
               </div>
